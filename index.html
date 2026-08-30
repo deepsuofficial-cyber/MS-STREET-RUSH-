@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MACRAS STREET RUSH</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #05050a;
+            color: #fff;
+        }
+
+        #game-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* UI Overlays */
+        .ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 10;
+        }
+
+        .interactive {
+            pointer-events: auto;
+        }
+
+        /* Splash Screen */
+        #splash-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a16 0%, #1a0f2e 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 0.8s ease-out;
+        }
+
+        .splash-title {
+            font-size: 3rem;
+            font-weight: 900;
+            font-style: italic;
+            letter-spacing: 4px;
+            background: linear-gradient(45deg, #ff0055, #ff9900, #00ffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255,0,85,0.5);
+            margin-bottom: 10px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .splash-subtitle {
+            font-size: 1.2rem;
+            letter-spacing: 8px;
+            color: #00ffff;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* Main Menu */
+        #main-menu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 30px 20px;
+            z-index: 20;
+            transition: opacity 0.5s ease;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .currency-container {
+            background: rgba(15, 15, 30, 0.65);
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+        }
+
+        .coin-icon {
+            width: 24px;
+            height: 24px;
+            background: radial-gradient(circle, #ffe600 0%, #ff9900 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 8px #ffe600;
+            border: 2px solid #fff;
+        }
+
+        .coin-amount {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .menu-title-box {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .logo-main {
+            font-size: 2.8rem;
+            font-weight: 900;
+            font-style: italic;
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: -2px -2px 0 #ff0055, 2px 2px 0 #00ffff;
+            line-height: 0.9;
+        }
+
+        .logo-sub {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #ffcc00;
+            letter-spacing: 6px;
+            text-shadow: 0 0 10px rgba(255,204,0,0.6);
+        }
+
+        .stats-box {
+            background: rgba(10, 10, 25, 0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+            padding: 10px 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            align-self: center;
+        }
+
+        .high-score-label {
+            font-size: 0.8rem;
+            color: #aaa;
+            letter-spacing: 1px;
+        }
+
+        .high-score-val {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #00ffff;
+        }
+
+        .menu-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(180deg, #ff0055 0%, #b3003b 100%);
+            border: none;
+            color: white;
+            padding: 16px 45px;
+            font-size: 1.5rem;
+            font-weight: 900;
+            font-style: italic;
+            border-radius: 40px;
+            box-shadow: 0 6px 20px rgba(255, 0, 85, 0.4), inset 0 2px 0 rgba(255,255,255,0.4);
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            min-width: 220px;
+            text-align: center;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 10px rgba(255, 0, 85, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(180deg, #1a1a3a 0%, #0d0d1e 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            font-size: 1.1rem;
+            padding: 12px 30px;
+            color: #ddd;
+        }
+
+        .btn-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            min-width: auto;
+        }
+
+        /* HUD Overlay */
+        #hud {
+            display: none;
+            padding: 20px;
+        }
+
+        .hud-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .score-box {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .score-val {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(0,255,255,0.5);
+            font-style: italic;
+        }
+
+        .multiplier {
+            font-size: 1rem;
+            color: #ff9900;
+            font-weight: 800;
+        }
+
+        /* Game Over Screen */
+        #game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 5, 12, 0.85);
+            backdrop-filter: blur(12px);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 30;
+            gap: 20px;
+        }
+
+        .go-title {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #ff0055;
+            font-style: italic;
+            text-shadow: 0 0 20px rgba(255,0,85,0.6);
+        }
+
+        .go-stats {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 20px 40px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+            width: 80%;
+            max-width: 320px;
+        }
+
+        .go-stat-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 1.1rem;
+        }
+
+        .go-stat-val {
+            font-weight: 800;
+            color: #00ffff;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="splash-screen">
+            <div class="splash-title">MACRAS</div>
+            <div class="splash-subtitle">STREET RUSH</div>
+        </div>
+
+        <div id="main-menu" class="ui-layer hidden">
+            <div class="top-bar">
+                <div class="currency-container">
+                    <div class="coin-icon"></div>
+                    <div class="coin-amount" id="menu-coins">0</div>
+                </div>
+                <button class="btn btn-secondary btn-icon interactive" id="btn-audio">🔊</button>
+            </div>
+
+            <div class="menu-title-box">
+                <div class="logo-main">MACRAS</div>
+                <div class="logo-sub">STREET RUSH</div>
+            </div>
+
+            <div class="stats-box">
+                <div class="high-score-label">BEST DISTANCE</div>
+                <div class="high-score-val" id="menu-high-score">0m</div>
+            </div>
+
+            <div class="menu-actions">
+                <button class="btn interactive" id="btn-play">PLAY</button>
+                <button class="btn btn-secondary interactive" id="btn-clothes">SKINS</button>
+            </div>
+        </div>
+
+        <div id="hud" class="ui-layer">
+            <div class="hud-top">
+                <div class="currency-container">
+                    <div class="coin-icon"></div>
+                    <div class="coin-amount" id="hud-coins">0</div>
+                </div>
+                <div class="score-box">
+                    <div class="score-val" id="hud-score">0m</div>
+                    <div class="multiplier" id="hud-speed">1.0x SPEED</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="game-over" class="ui-layer interactive">
+            <div class="go-title">CRASHED!</div>
+            <div class="go-stats">
+                <div class="go-stat-row">
+                    <span>Distance:</span>
+                    <span class="go-stat-val" id="go-score">0m</span>
+                </div>
+                <div class="go-stat-row">
+                    <span>Coins Collected:</span>
+                    <span class="go-stat-val" id="go-coins">0</span>
+                </div>
+                <div class="go-stat-row">
+                    <span>Best Score:</span>
+                    <span class="go-stat-val" id="go-best">0m</span>
+                </div>
+            </div>
+            <button class="btn interactive" id="btn-restart">RUN AGAIN</button>
+            <button class="btn btn-secondary interactive" id="btn-menu">MENU</button>
+        </div>
+    </div>
+
+    <script>
+        /* --- AUDIO SYNTHESIZER (Web Audio API) --- */
+        class SoundController {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playTone(freq, type, duration, startVol = 0.1, endVol = 0) {
+                if (this.muted || !this.ctx) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(startVol, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(Math.max(endVol, 0.0001), this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e){}
+            }
+
+            playCoin() {
+                if (this.muted || !this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(987.77, now); // B5
+                osc.frequency.setValueAtTime(1318.51, now + 0.08); // E6
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(now + 0.25);
+            }
+
+            playJump() {
+                if (this.muted || !this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(400, now + 0.15);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(now + 0.15);
+            }
+
+            playSlide() {
+                if (this.muted || !this.ctx) return;
+                // White noise burst for slide
+                const bufferSize = this.ctx.sampleRate * 0.2;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(800, this.ctx.currentTime);
+                filter.frequency.linearRampToValueAtTime(200, this.ctx.currentTime + 0.2);
+
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+                noise.start();
+            }
+
+            playSwitch() {
+                this.playTone(300, 'sine', 0.05, 0.05);
+            }
+
+            playCrash() {
+                if (this.muted || !this.ctx) return;
+                // Noise + low frequency drop
+                this.playTone(80, 'sawtooth', 0.4, 0.4, 0.01);
+            }
+        }
+
+        const audio = new SoundController();
+
+        /* --- GAME ENGINE & STATE --- */
+        const STATES = { SPLASH: 0, MENU: 1, PLAYING: 2, GAMEOVER: 3 };
+        let gameState = STATES.SPLASH;
+
+        let scene, camera, renderer;
+        let playerGroup, characterMesh;
+        let limbs = {};
+        
+        // Gameplay Variables
+        const LANE_WIDTH = 2.2;
+        let currentLane = 0; // -1: Left, 0: Center, 1: Right
+        let targetX = 0;
+        
+        let isJumping = false;
+        let jumpV0 = 12;
+        let gravity = -35;
+        let playerVelocityY = 0;
+        let playerY = 0;
+
+        let isSliding = false;
+        let slideTimer = 0;
+        const SLIDE_DURATION = 0.8;
+
+        let speed = 18;
+        const START_SPEED = 18;
+        const MAX_SPEED = 42;
+        let distance = 0;
+        let coinsCollected = 0;
+        let totalCoins = parseInt(localStorage.getItem('macras_coins') || '0');
+        let highScore = parseInt(localStorage.getItem('macras_highscore') || '0');
+
+        // Scene Objects Storage
+        let roadSegments = [];
+        let sceneryObjects = [];
+        let obstacles = [];
+        let coins = [];
+        let particles = [];
+
+        const ROAD_SEGMENT_LENGTH = 20;
+        const NUM_ROAD_SEGMENTS = 8;
+        
+        // Color Palette
+        const COLORS = {
+            sky: 0x0a0a16,
+            road: 0x181824,
+            laneLine: 0x00ffff,
+            sidewalk: 0x2a2a3d,
+            building: [0x0f1026, 0x181528, 0x121a2d],
+            neon: [0xff0055, 0x00ffff, 0xff9900, 0x9900ff],
+            skin: 0xffdbac,
+            shirt: 0xff0055,
+            pants: 0x111122
+        };
+
+        /* --- PROCEDURAL CHARACTER BUILDER --- */
+        function createPlayer() {
+            playerGroup = new THREE.Group();
+
+            // Materials
+            const skinMat = new THREE.MeshStandardMaterial({ color: COLORS.skin, roughness: 0.6 });
+            const shirtMat = new THREE.MeshStandardMaterial({ color: COLORS.shirt, roughness: 0.4 });
+            const pantsMat = new THREE.MeshStandardMaterial({ color: COLORS.pants, roughness: 0.5 });
+            const shoeMat = new THREE.MeshStandardMaterial({ color: 0xeeeeee, roughness: 0.2 });
+            const hairMat = new THREE.MeshStandardMaterial({ color: 0x221100, roughness: 0.9 });
+
+            // Main Rig Root
+            characterMesh = new THREE.Group();
+            playerGroup.add(characterMesh);
+
+            // Torso
+            const torsoGeo = new THREE.BoxGeometry(0.5, 0.7, 0.3);
+            const torso = new THREE.Mesh(torsoGeo, shirtMat);
+            torso.position.y = 0.85;
+            torso.castShadow = true;
+            characterMesh.add(torso);
+
+            // Head
+            const headGeo = new THREE.BoxGeometry(0.35, 0.35, 0.35);
+            const head = new THREE.Mesh(headGeo, skinMat);
+            head.position.y = 0.6;
+            torso.add(head);
+
+            // Hair
+            const hairGeo = new THREE.BoxGeometry(0.38, 0.15, 0.38);
+            const hair = new THREE.Mesh(hairGeo, hairMat);
+            hair.position.y = 0.15;
+            head.add(hair);
+
+            // Arms (Pivot points at shoulders)
+            const armGeo = new THREE.BoxGeometry(0.12, 0.6, 0.12);
+            armGeo.translate(0, -0.25, 0);
+
+            const leftArm = new THREE.Mesh(armGeo, shirtMat);
+            leftArm.position.set(-0.33, 0.3, 0);
+            leftArm.castShadow = true;
+            torso.add(leftArm);
+
+            const rightArm = new THREE.Mesh(armGeo, shirtMat);
+            rightArm.position.set(0.33, 0.3, 0);
+            rightArm.castShadow = true;
+            torso.add(rightArm);
+
+            // Legs (Pivot points at hips)
+            const legGeo = new THREE.BoxGeometry(0.16, 0.65, 0.16);
+            legGeo.translate(0, -0.3, 0);
+
+            const leftLeg = new THREE.Mesh(legGeo, pantsMat);
+            leftLeg.position.set(-0.15, -0.35, 0);
+            leftLeg.castShadow = true;
+            torso.add(leftLeg);
+
+            const rightLeg = new THREE.Mesh(legGeo, pantsMat);
+            rightLeg.position.set(0.15, -0.35, 0);
+            rightLeg.castShadow = true;
+            torso.add(rightLeg);
+
+            // Shoes
+            const shoeGeo = new THREE.BoxGeometry(0.18, 0.12, 0.25);
+            shoeGeo.translate(0, -0.05, 0.03);
+            
+            const leftShoe = new THREE.Mesh(shoeGeo, shoeMat);
+            leftShoe.position.y = -0.65;
+            leftLeg.add(leftShoe);
+
+            const rightShoe = new THREE.Mesh(shoeGeo, shoeMat);
+            rightShoe.position.y = -0.65;
+            rightLeg.add
