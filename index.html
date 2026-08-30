@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+
+<title>MACRAS STREET RUSH</title>
+
+<!-- THREE.JS IMPORT MAP -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+  }
+}
+</script>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#02050a;
+  font-family:Arial,Helvetica,sans-serif;
+  color:#fff;
+}
+
+body{
+  touch-action:none;
+}
+
+button{
+  border:0;
+  outline:0;
+  font:inherit;
+  color:inherit;
+  cursor:pointer;
+}
+
+#app{
+  position:fixed;
+  inset:0;
+  overflow:hidden;
+  background:#02050a;
+}
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+#loading{
+  position:absolute;
+  inset:0;
+  z-index:9999;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  background:
+    radial-gradient(circle at 50% 40%,#102542 0%,#040913 40%,#010204 100%);
+  transition:opacity .35s;
+}
+
+.loaderLogo{
+  width:88px;
+  height:88px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+
+  font-size:42px;
+  font-weight:1000;
+
+  background:linear-gradient(145deg,#ff3159,#a9002d);
+  border:3px solid #ff1744;
+
+  box-shadow:
+    0 0 15px rgba(255,23,68,.8),
+    0 0 45px rgba(255,23,68,.35),
+    inset 0 5px 12px rgba(255,255,255,.2);
+}
+
+.loaderBrand{
+  margin-top:20px;
+  font-size:20px;
+  font-weight:1000;
+  letter-spacing:7px;
+}
+
+.loaderSub{
+  margin-top:6px;
+  font-size:13px;
+  letter-spacing:4px;
+  color:#168dff;
+  font-weight:900;
+}
+
+.loaderTrack{
+  width:210px;
+  height:5px;
+  margin-top:22px;
+  border-radius:10px;
+  overflow:hidden;
+  background:#172235;
+}
+
+.loaderProgress{
+  width:0%;
+  height:100%;
+  background:linear-gradient(90deg,#ff1744,#168dff);
+  transition:width .2s;
+}
+
+.loaderStatus{
+  margin-top:10px;
+  color:#71849c;
+  font-size:11px;
+}
+
+/* =========================================================
+   MAIN MENU
+========================================================= */
+
+#menu{
+  position:absolute;
+  inset:0;
+  z-index:100;
+  overflow-y:auto;
+  padding:
+    calc(18px + env(safe-area-inset-top))
+    15px
+    calc(25px + env(safe-area-inset-bottom));
+
+  background:
+    radial-gradient(circle at 50% 5%,rgba(0,136,255,.18),transparent 30%),
+    radial-gradient(circle at 90% 65%,rgba(255,23,68,.12),transparent 35%),
+    #03070e;
+}
+
+.logoArea{
+  text-align:center;
+  padding-top:5px;
+}
+
+.logo{
+  width:80px;
+  height:80px;
+  margin:auto;
+
+  display:grid;
+  place-items:center;
+
+  border-radius:50%;
+  border:3px solid #ff1744;
+
+  font-size:38px;
+  font-weight:1000;
+
+  background:
+    radial-gradient(circle at 35% 25%,#ff6682,#d80039 45%,#26000d);
+
+  box-shadow:
+    0 0 20px rgba(255,23,68,.65),
+    inset 0 4px 12px rgba(255,255,255,.18);
+}
+
+.brand{
+  margin-top:10px;
+  color:#168dff;
+  font-size:16px;
+  letter-spacing:7px;
+  font-weight:1000;
+}
+
+.gameTitle{
+  margin-top:4px;
+  font-size:32px;
+  line-height:1;
+  font-weight:1000;
+}
+
+.gameTitle span{
+  color:#ff1744;
+}
+
+/* CHARACTER PREVIEW */
+
+.characterCard{
+  position:relative;
+  height:280px;
+  margin-top:17px;
+
+  overflow:hidden;
+  border-radius:27px;
+
+  border:1px solid rgba(0,136,255,.5);
+
+  background:
+    radial-gradient(circle at 50% 30%,rgba(0,136,255,.23),transparent 42%),
+    linear-gradient(145deg,#102039,#03070d);
+
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.1),
+    0 15px 40px rgba(0,0,0,.55);
+}
+
+.characterCard:before{
+  content:"";
+  position:absolute;
+  width:160px;
+  height:30px;
+  bottom:13px;
+  left:50%;
+  transform:translateX(-50%);
+  border-radius:50%;
+  background:#0088ff;
+  filter:blur(18px);
+  opacity:.35;
+}
+
+#previewCanvas,
+#characterCanvas{
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+.characterLoading{
+  position:absolute;
+  left:50%;
+  bottom:13px;
+  transform:translateX(-50%);
+  padding:7px 13px;
+  border-radius:20px;
+  background:rgba(0,0,0,.6);
+  border:1px solid #315477;
+  color:#9bb1c9;
+  font-size:10px;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+/* BUTTONS */
+
+.mainButtons{
+  display:flex;
+  flex-direction:column;
+  gap:11px;
+  margin-top:15px;
+}
+
+.btn3d{
+  width:100%;
+  min-height:59px;
+  border-radius:18px;
+
+  font-size:17px;
+  font-weight:1000;
+  letter-spacing:2px;
+
+  background:linear-gradient(145deg,#ff3159,#b90031);
+  border:1px solid #ff5775;
+
+  box-shadow:
+    inset 0 2px rgba(255,255,255,.18),
+    0 7px 0 #600018,
+    0 0 22px rgba(255,23,68,.25);
+
+  transition:.12s;
+}
+
+.btn3d.blue{
+  background:linear-gradient(145deg,#159cff,#0059a9);
+  border-color:#42b5ff;
+
+  box-shadow:
+    inset 0 2px rgba(255,255,255,.18),
+    0 7px 0 #003668,
+    0 0 22px rgba(0,136,255,.25);
+}
+
+.btn3d.dark{
+  background:linear-gradient(145deg,#17283d,#070c13);
+  border-color:#3d5773;
+  box-shadow:
+    inset 0 2px rgba(255,255,255,.1),
+    0 6px 0 #020306;
+}
+
+.btn3d:active{
+  transform:translateY(6px);
+  box-shadow:
+    inset 0 2px rgba(255,255,255,.08),
+    0 1px 0 #020306;
+}
+
+.menuGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:12px;
+}
+
+.smallBtn{
+  min-height:55px;
+  border-radius:16px;
+
+  background:linear-gradient(145deg,#14263e,#050a11);
+  border:1px solid #294966;
+
+  font-size:12px;
+  font-weight:1000;
+
+  box-shadow:0 5px 0 #020306;
+}
+
+.smallBtn:active{
+  transform:translateY(4px);
+  box-shadow:0 1px 0 #020306;
+}
+
+/* =========================================================
+   GAME
+========================================================= */
+
+#game{
+  position:absolute;
+  inset:0;
+  z-index:200;
+  display:none;
+  overflow:hidden;
+  background:#02050a;
+}
+
+#gameCanvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+/* HUD */
+
+.hud{
+  position:absolute;
+  top:calc(10px + env(safe-area-inset-top));
+  left:10px;
+  right:10px;
+
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+
+  z-index:20;
+  pointer-events:none;
+}
+
+.hudBox{
+  min-width:98px;
+  padding:8px 11px;
+
+  border-radius:14px;
+  border:1px solid rgba(0,136,255,.65);
+
+  background:rgba(3,10,20,.84);
+
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.08),
+    0 7px 20px rgba(0,0,0,.4);
+}
+
+.hudTitle{
+  color:#60baff;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:2px;
+}
+
+.hudValue{
+  margin-top:2px;
+  font-size:20px;
+  font-weight:1000;
+}
+
+.coinValue{
+  color:#ffd43b;
+}
+
+#pauseBtn{
+  pointer-events:auto;
+
+  width:47px;
+  height:47px;
+
+  border-radius:15px;
+
+  background:linear-gradient(145deg,#1d2e45,#070b12);
+  border:1px solid #45617f;
+
+  box-shadow:0 6px 0 #020306;
+
+  font-size:19px;
+}
+
+/* POWER TIMER */
+
+.powerHUD{
+  position:absolute;
+  top:calc(69px + env(safe-area-inset-top));
+  right:10px;
+
+  width:150px;
+
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+
+  z-index:25;
+  pointer-events:none;
+}
+
+.powerTimer{
+  display:none;
+
+  padding:7px 9px;
+  border-radius:12px;
+
+  background:rgba(3,9,18,.92);
+  border:1px solid #168dff;
+
+  box-shadow:0 0 18px rgba(0,136,255,.2);
+}
+
+.powerTimer.show{
+  display:block;
+}
+
+.powerName{
+  font-size:9px;
+  font-weight:1000;
+  letter-spacing:1px;
+}
+
+.powerSeconds{
+  font-size:17px;
+  font-weight:1000;
+  margin-top:1px;
+}
+
+.powerBar{
+  height:4px;
+  margin-top:4px;
+  overflow:hidden;
+  background:#02050a;
+  border-radius:10px;
+}
+
+.powerFill{
+  width:100%;
+  height:100%;
+  transform-origin:left;
+  background:#168dff;
+}
+
+/* CONTROLS */
+
+.controls{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:calc(15px + env(safe-area-inset-bottom));
+
+  z-index:30;
+
+  display:flex;
+  justify-content:space-between;
+
+  padding:0 17px;
+
+  pointer-events:none;
+}
+
+.controlGroup{
+  display:flex;
+  gap:9px;
+  pointer-events:auto;
+}
+
+.control{
+  width:61px;
+  height:61px;
+
+  border-radius:21px;
+
+  background:linear-gradient(145deg,#192b42,#050a12);
+  border:1px solid rgba(255,255,255,.18);
+
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.12),
+    0 6px 0 #020306;
+
+  font-size:25px;
+}
+
+.control:active{
+  transform:translateY(5px);
+  box-shadow:0 1px 0 #020306;
+}
+
+/* =========================================================
+   PANELS
+========================================================= */
+
+.panel{
+  position:absolute;
+  inset:0;
+  z-index:500;
+
+  display:none;
+  overflow-y:auto;
+
+  padding:
+    calc(16px + env(safe-area-inset-top))
+    14px
+    calc(25px + env(safe-area-inset-bottom));
+
+  background:
+    radial-gradient(circle at 10% 0%,rgba(0,136,255,.17),transparent 32%),
+    radial-gradient(circle at 90% 55%,rgba(255,23,68,.12),transparent 30%),
+    #03070e;
+}
+
+.panel.show{
+  display:block;
+}
+
+.panelHeader{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  margin-bottom:14px;
+}
+
+.back{
+  width:45px;
+  height:45px;
+  flex-shrink:0;
+
+  border-radius:15px;
+
+  background:linear-gradient(145deg,#1b2d44,#070b12);
+  border:1px solid #3d5773;
+
+  box-shadow:0 5px 0 #020306;
+
+  font-size:27px;
+}
+
+.panelTitle{
+  font-size:25px;
+  font-weight:1000;
+}
+
+.panelTitle span{
+  color:#ff1744;
+}
+
+.section{
+  padding:14px;
+  margin-bottom:13px;
+
+  border-radius:21px;
+
+  background:linear-gradient(145deg,rgba(15,29,48,.96),rgba(3,7,13,.96));
+  border:1px solid rgba(0,136,255,.32);
+
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.07),
+    0 10px 25px rgba(0,0,0,.4);
+}
+
+.section h3{
+  margin:0 0 11px;
+  color:#52b7ff;
+  font-size:12px;
+  letter-spacing:2px;
+}
+
+/* =========================================================
+   SHOP
+========================================================= */
+
+.wallet{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:12px;
+
+  border-radius:15px;
+
+  background:#050a12;
+  border:1px solid #29435f;
+
+  margin-bottom:12px;
+}
+
+.wallet strong{
+  color:#ffd43b;
+  font-size:20px;
+}
+
+.shopGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.shopItem{
+  padding:9px;
+
+  text-align:center;
+
+  border-radius:18px;
+
+  background:linear-gradient(145deg,#15283f,#060a11);
+  border:1px solid #2a4a68;
+
+  box-shadow:0 5px 0 #020306;
+}
+
+.clothPreview{
+  height:115px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:13px;
+
+  background:
+    radial-gradient(circle,rgba(0,136,255,.2),transparent 65%),
+    #07101c;
+
+  margin-bottom:8px;
+
+  font-size:55px;
+}
+
+.itemName{
+  font-size:12px;
+  font-weight:1000;
+}
+
+.itemPrice{
+  color:#ffd43b;
+  font-size:12px;
+  font-weight:900;
+  margin:6px 0;
+}
+
+.shopAction{
+  width:100%;
+  padding:9px;
+
+  border-radius:11px;
+
+  background:linear-gradient(145deg,#008fff,#0059a9);
+  font-size:11px;
+  font-weight:1000;
+}
+
+/* =========================================================
+   POWERUPS
+========================================================= */
+
+.powerList{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.powerCard{
+  display:flex;
+  align-items:center;
+  gap:11px;
+
+  padding:12px;
+
+  border-radius:19px;
+
+  background:linear-gradient(145deg,#152940,#050a11);
+  border:1px solid #315477;
+
+  box-shadow:0 6px 0 #020306;
+}
+
+.powerIcon{
+  width:61px;
+  height:61px;
+  flex-shrink:0;
+
+  display:grid;
+  place-items:center;
+
+  border-radius:50%;
+
+  background:
+    radial-gradient(circle at 30% 25%,#68d1ff,#0065bd 55%,#031329);
+
+  border:2px solid #008cff;
+
+  font-size:28px;
+
+  box-shadow:0 0 20px rgba(0,136,255,.3);
+}
+
+.powerCard.red .powerIcon{
+  background:
+    radial-gradient(circle at 30% 25%,#ff7890,#c40031 55%,#28000b);
+
+  border-color:#ff1744;
+}
+
+.powerInfo{
+  flex:1;
+}
+
+.powerInfo h3{
+  margin:0;
+  font-size:15px;
+  font-weight:1000;
+}
+
+.powerInfo p{
+  margin:4px 0 0;
+  color:#8ea3ba;
+  font-size:11px;
+  line-height:1.3;
+}
+
+.equipBtn{
+  padding:9px 11px;
+  border-radius:11px;
+
+  background:#118fe8;
+  font-size:10px;
+  font-weight:1000;
+}
+
+/* =========================================================
+   MISSIONS
+========================================================= */
+
+.mission{
+  padding:13px;
+  margin-bottom:9px;
+
+  border-radius:16px;
+
+  background:#07101b;
+  border:1px solid #253d56;
+}
+
+.missionTop{
+  display:flex;
+  justify-content:space-between;
+
+  font-size:12px;
+  font-weight:900;
+}
+
+.missionBar{
+  height:7px;
+  margin-top:8px;
+
+  overflow:hidden;
+
+  border-radius:10px;
+  background:#02050a;
+}
+
+.missionBar div{
+  width:0;
+  height:100%;
+  background:linear-gradient(90deg,#008cff,#51c4ff);
+}
+
+/* =========================================================
+   SETTINGS
+========================================================= */
+
+.settingRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  padding:13px 0;
+
+  border-bottom:1px solid #17283b;
+
+  font-size:13px;
+  font-weight:900;
+}
+
+.switch{
+  width:51px;
+  height:28px;
+  padding:3px;
+
+  border-radius:20px;
+
+  background:#1a2a3d;
+}
+
+.switch i{
+  display:block;
+
+  width:22px;
+  height:22px;
+
+  border-radius:50%;
+  background:#73869b;
+
+  transition:.2s;
+}
+
+.switch.on{
+  background:#008cff;
+}
+
+.switch.on i{
+  transform:translateX(23px);
+  background:#fff;
+}
+
+/* =========================================================
+   GAME OVER / PAUSE
+========================================================= */
+
+.overlay{
+  position:absolute;
+  inset:0;
+  z-index:600;
+
+  display:none;
+  align-items:center;
+  justify-content:center;
+
+  padding:20px;
+
+  background:rgba(0,3,8,.72);
+  backdrop-filter:blur(7px);
+}
+
+.overlay.show{
+  display:flex;
+}
+
+.overlayCard{
+  width:min(390px,92vw);
+
+  padding:25px 18px;
+
+  border-radius:26px;
+
+  text-align:center;
+
+  background:
+    linear-gradient(145deg,rgba(17,32,52,.98),rgba(3,7,13,.98));
+
+  border:1px solid #315477;
+
+  box-shadow:
+    0 25px 70px rgba(0,0,0,.7),
+    inset 0 1px rgba(255,255,255,.1);
+}
+
+.overlayTitle{
+  font-size:30px;
+  font-weight:1000;
+}
+
+.overlayTitle.red{
+  color:#ff1744;
+}
+
+.finalScore{
+  margin-top:8px;
+  color:#52b7ff;
+  font-size:13px;
+  letter-spacing:2px;
+  font-weight:900;
+}
+
+.finalNumber{
+  margin-top:3px;
+  font-size:42px;
+  font-weight:1000;
+}
+
+.resultCoins{
+  color:#ffd43b;
+  font-size:16px;
+  font-weight:1000;
+  margin-bottom:18px;
+}
+
+.overlayButtons{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+#toast{
+  position:absolute;
+  left:50%;
+  bottom:105px;
+
+  z-index:900;
+
+  transform:translate(-50%,20px);
+
+  min-width:180px;
+  max-width:88%;
+
+  padding:11px 15px;
+
+  text-align:center;
+
+  border-radius:14px;
+
+  background:linear-gradient(145deg,#15283f,#050a11);
+  border:1px solid #008cff;
+
+  box-shadow:0 10px 30px rgba(0,0,0,.5);
+
+  font-size:12px;
+  font-weight:1000;
+
+  opacity:0;
+  pointer-events:none;
+
+  transition:.25s;
+}
+
+#toast.show{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+
+/* =========================================================
+   DESKTOP
+========================================================= */
+
+@media(min-width:700px){
+
+  #menu,
+  .panel{
+    width:520px;
+    left:50%;
+    right:auto;
+    transform:translateX(-50%);
+  }
+
+  .controls{
+    max-width:700px;
+    left:50%;
+    right:auto;
+    width:100%;
+    transform:translateX(-50%);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+<!-- ======================================================
+     LOADING
+====================================================== -->
+
+<div id="loading">
+
+  <div class="loaderLogo">M</div>
+
+  <div class="loaderBrand">MACRAS</div>
+  <div class="loaderSub">STREET RUSH</div>
+
+  <div class="loaderTrack">
+    <div class="loaderProgress" id="loaderProgress"></div>
+  </div>
+
+  <div class="loaderStatus" id="loaderStatus">
+    Starting game...
+  </div>
+
+</div>
+
+
+<!-- ======================================================
+     MAIN MENU
+====================================================== -->
+
+<div id="menu">
+
+  <div class="logoArea">
+
+    <div class="logo">M</div>
+
+    <div class="brand">MACRAS</div>
+
+    <div class="gameTitle">
+      STREET <span>RUSH</span>
+    </div>
+
+  </div>
+
+
+  <div class="characterCard">
+
+    <canvas id="previewCanvas"></canvas>
+
+    <div class="characterLoading" id="characterLoading">
+      3D CHARACTER LOADING...
+    </div>
+
+  </div>
+
+
+  <div class="mainButtons">
+
+    <button class="btn3d" id="playBtn">
+      ▶ PLAY
+    </button>
+
+    <button class="btn3d blue" id="shopBtn">
+      🛒 STREET SHOP
+    </button>
+
+  </div>
+
+
+  <div class="menuGrid">
+
+    <button class="smallBtn" id="powerBtn">
+      ⚡ POWER-UPS
+    </button>
+
+    <button class="smallBtn" id="characterBtn">
+      👤 CHARACTER
+    </button>
+
+    <button class="smallBtn" id="missionBtn">
+      🎯 MISSIONS
+    </button>
+
+    <button class="smallBtn" id="settingBtn">
+      ⚙ SETTINGS
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- ======================================================
+     GAME
+====================================================== -->
+
+<div id="game">
+
+  <canvas id="gameCanvas"></canvas>
+
+
+  <div class="hud">
+
+    <div class="hudBox">
+      <div class="hudTitle">SCORE</div>
+      <div class="hudValue" id="score">0</div>
+    </div>
+
+
+    <button id="pauseBtn">
+      Ⅱ
+    </button>
+
+
+    <div class="hudBox">
+      <div class="hudTitle">COINS</div>
+      <div class="hudValue coinValue" id="coins">0</div>
+    </div>
+
+  </div>
+
+
+  <div class="powerHUD">
+
+    <div class="powerTimer" id="speedTimer">
+
+      <div class="powerName">
+        ⚡ SPEED BOOST
+      </div>
+
+      <div class="powerSeconds" id="speedSeconds">
+        8.0s
+      </div>
+
+      <div class="powerBar">
+        <div class="powerFill" id="speedFill"></div>
+      </div>
+
+    </div>
+
+
+    <div class="powerTimer" id="shieldTimer">
+
+      <div class="powerName">
+        🛡 SHIELD
+      </div>
+
+      <div class="powerSeconds" id="shieldSeconds">
+        12.0s
+      </div>
+
+      <div class="powerBar">
+        <div class="powerFill" id="shieldFill"></div>
+      </div>
+
+    </div>
+
+
+    <div class="powerTimer" id="magnetTimer">
+
+      <div class="powerName">
+        🧲 MAGNET
+      </div>
+
+      <div class="powerSeconds" id="magnetSeconds">
+        6.0s
+      </div>
+
+      <div class="powerBar">
+        <div class="powerFill" id="magnetFill"></div>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="controls">
+
+    <div class="controlGroup">
+
+      <button class="control" id="leftBtn">
+        ‹
+      </button>
+
+      <button class="control" id="rightBtn">
+        ›
+      </button>
+
+    </div>
+
+
+    <div class="controlGroup">
+
+      <button class="control" id="slideBtn">
+        ⌄
+      </button>
+
+      <button class="control" id="jumpBtn">
+        ⌃
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- PAUSE -->
+
+  <div class="overlay" id="pauseOverlay">
+
+    <div class="overlayCard">
+
+      <div class="overlayTitle">
+        GAME PAUSED
+      </div>
+
+      <div class="finalScore">
+        CURRENT SCORE
+      </div>
+
+      <div class="finalNumber" id="pauseScore">
+        0
+      </div>
+
+      <div class="overlayButtons">
+
+        <button class="btn3d" id="resumeBtn">
+          ▶ RESUME
+        </button>
+
+        <button class="btn3d dark" id="pauseMenuBtn">
+          MAIN MENU
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- GAME OVER -->
+
+  <div class="overlay" id="gameOverOverlay">
+
+    <div class="overlayCard">
+
+      <div class="overlayTitle red">
+        RUN OVER
+      </div>
+
+      <div class="finalScore">
+        FINAL SCORE
+      </div>
+
+      <div class="finalNumber" id="finalScore">
+        0
+      </div>
+
+      <div class="resultCoins">
+        🪙 +<span id="finalCoins">0</span>
+      </div>
+
+      <div class="overlayButtons">
+
+        <button class="btn3d" id="restartBtn">
+          ↻ RUN AGAIN
+        </button>
+
+        <button class="btn3d dark" id="gameMenuBtn">
+          MAIN MENU
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ======================================================
+     SHOP
+====================================================== -->
+
+<div class="panel" id="shop
