@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+
+<title>MACRAS STREET RUSH</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#02050a;
+  font-family:Arial,Helvetica,sans-serif;
+  color:white;
+}
+
+button{
+  border:0;
+  outline:0;
+  font:inherit;
+  color:white;
+}
+
+#app{
+  position:fixed;
+  inset:0;
+  overflow:hidden;
+  background:#02050a;
+}
+
+canvas{
+  display:block;
+}
+
+/* ================= LOADING ================= */
+
+#loading{
+  position:absolute;
+  inset:0;
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  background:
+    radial-gradient(circle at 50% 50%,#0c203d 0%,#02060d 45%,#010204 100%);
+  transition:opacity .35s;
+}
+
+.loaderLogo{
+  width:86px;
+  height:86px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  font-size:42px;
+  font-weight:1000;
+  border:3px solid #ff1744;
+  background:radial-gradient(circle at 35% 25%,#ff5573,#d90039 55%,#26000b);
+  box-shadow:
+  0 0 20px #ff1744,
+  0 0 60px rgba(255,23,68,.35);
+}
+
+.loaderBrand{
+  margin-top:20px;
+  font-size:23px;
+  font-weight:1000;
+  letter-spacing:7px;
+}
+
+.loaderSub{
+  margin-top:7px;
+  font-size:14px;
+  color:#1598ff;
+  letter-spacing:5px;
+  font-weight:900;
+}
+
+.loaderBar{
+  width:230px;
+  height:7px;
+  margin-top:25px;
+  border-radius:20px;
+  overflow:hidden;
+  background:#152235;
+}
+
+.loaderFill{
+  width:0%;
+  height:100%;
+  background:linear-gradient(90deg,#ff1744,#9c48ff,#008cff);
+  transition:width .2s;
+}
+
+.loaderStatus{
+  margin-top:12px;
+  color:#8fa3bd;
+  font-size:13px;
+}
+
+/* ================= MENU ================= */
+
+#menu{
+  position:absolute;
+  inset:0;
+  z-index:100;
+  overflow-y:auto;
+  padding:
+    calc(18px + env(safe-area-inset-top))
+    15px
+    calc(25px + env(safe-area-inset-bottom));
+
+  background:
+    radial-gradient(circle at 50% 5%,rgba(0,136,255,.18),transparent 32%),
+    radial-gradient(circle at 100% 70%,rgba(255,23,68,.14),transparent 30%),
+    #03070e;
+}
+
+.logo{
+  width:82px;
+  height:82px;
+  margin:5px auto 12px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  font-size:40px;
+  font-weight:1000;
+
+  background:
+    radial-gradient(circle at 35% 25%,#ff5c78,#df003c 55%,#26000a);
+
+  border:3px solid #ff1744;
+
+  box-shadow:
+    inset 0 4px 10px rgba(255,255,255,.2),
+    inset 0 -12px 20px rgba(0,0,0,.5),
+    0 0 30px rgba(255,23,68,.65);
+}
+
+.brand{
+  text-align:center;
+  font-size:16px;
+  letter-spacing:7px;
+  font-weight:1000;
+}
+
+.title{
+  text-align:center;
+  margin-top:4px;
+  font-size:31px;
+  font-weight:1000;
+}
+
+.title span{
+  color:#ff1744;
+}
+
+.characterPreview{
+  position:relative;
+  height:280px;
+  margin-top:15px;
+  overflow:hidden;
+  border-radius:25px;
+
+  background:
+    radial-gradient(circle at 50% 25%,rgba(0,136,255,.28),transparent 42%),
+    linear-gradient(145deg,#10213a,#03070e);
+
+  border:1px solid #24547d;
+
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.1),
+    0 15px 40px rgba(0,0,0,.5);
+}
+
+#previewCanvas{
+  width:100%;
+  height:100%;
+}
+
+.glbStatus{
+  position:absolute;
+  bottom:10px;
+  left:50%;
+  transform:translateX(-50%);
+  padding:7px 12px;
+  border-radius:12px;
+  font-size:10px;
+  font-weight:900;
+  background:rgba(0,0,0,.55);
+  color:#8fb5d8;
+  white-space:nowrap;
+}
+
+.buttons{
+  display:flex;
+  flex-direction:column;
+  gap:11px;
+  margin-top:14px;
+}
+
+.btn{
+  min-height:59px;
+  border-radius:18px;
+  font-weight:1000;
+  letter-spacing:2px;
+  font-size:16px;
+
+  background:linear-gradient(145deg,#ff3158,#bd0035);
+  border:1px solid #ff5572;
+
+  box-shadow:
+    inset 0 2px rgba(255,255,255,.2),
+    0 7px 0 #65001c,
+    0 0 22px rgba(255,23,68,.2);
+}
+
+.btn.blue{
+  background:linear-gradient(145deg,#159eff,#0060ad);
+  border-color:#45b8ff;
+  box-shadow:
+    inset 0 2px rgba(255,255,255,.2),
+    0 7px 0 #003b70,
+    0 0 22px rgba(0,136,255,.2);
+}
+
+.btn.dark{
+  background:linear-gradient(145deg,#1b2b40,#070c13);
+  border-color:#405875;
+  box-shadow:0 7px 0 #020305;
+}
+
+.btn:active{
+  transform:translateY(6px);
+  box-shadow:0 1px 0 #020305;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:13px;
+}
+
+.small{
+  min-height:54px;
+  border-radius:16px;
+  background:linear-gradient(145deg,#172b45,#050a12);
+  border:1px solid #2d4d6d;
+  font-size:13px;
+  font-weight:900;
+  box-shadow:0 5px 0 #020306;
+}
+
+.small:active{
+  transform:translateY(4px);
+  box-shadow:0 1px 0 #020306;
+}
+
+/* ================= GAME ================= */
+
+#game{
+  position:absolute;
+  inset:0;
+  display:none;
+  overflow:hidden;
+  background:#06101c;
+}
+
+#gameCanvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+
+/* ================= HUD ================= */
+
+.hud{
+  position:absolute;
+  top:calc(10px + env(safe-area-inset-top));
+  left:10px;
+  right:10px;
+  z-index:30;
+
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+}
+
+.hudBox{
+  min-width:102px;
+  padding:8px 11px;
+  border-radius:15px;
+
+  background:rgba(4,12,23,.88);
+  border:1px solid rgba(0,145,255,.65);
+
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.08),
+    0 7px 20px rgba(0,0,0,.35);
+}
+
+.hudLabel{
+  font-size:9px;
+  color:#62baff;
+  font-weight:900;
+  letter-spacing:2px;
+}
+
+.hudValue{
+  margin-top:2px;
+  font-size:20px;
+  font-weight:1000;
+}
+
+.coin{
+  color:#ffd52e;
+}
+
+#pause{
+  width:47px;
+  height:47px;
+  border-radius:15px;
+  background:linear-gradient(145deg,#24364d,#080d15);
+  border:1px solid #506a84;
+  font-size:20px;
+  box-shadow:0 6px 0 #020305;
+}
+
+/* ================= POWER HUD ================= */
+
+#powers{
+  position:absolute;
+  top:calc(68px + env(safe-area-inset-top));
+  right:10px;
+  z-index:30;
+
+  width:160px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.powerHud{
+  display:none;
+  padding:8px 10px;
+  border-radius:13px;
+
+  background:rgba(4,10,19,.92);
+  border:1px solid #008cff;
+
+  box-shadow:0 0 17px rgba(0,136,255,.3);
+}
+
+.powerHud.show{
+  display:block;
+}
+
+.powerName{
+  font-size:10px;
+  font-weight:1000;
+  letter-spacing:1px;
+}
+
+.powerTime{
+  font-size:17px;
+  font-weight:1000;
+  margin-top:2px;
+}
+
+.powerBar{
+  height:5px;
+  margin-top:4px;
+  background:#02060b;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.powerFill{
+  width:100%;
+  height:100%;
+  background:#00aaff;
+  transform-origin:left;
+}
+
+/* ================= CONTROLS ================= */
+
+.controls{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:calc(15px + env(safe-area-inset-bottom));
+  z-index:35;
+
+  display:flex;
+  justify-content:space-between;
+  padding:0 16px;
+}
+
+.controlGroup{
+  display:flex;
+  gap:9px;
+}
+
+.control{
+  width:62px;
+  height:62px;
+  border-radius:21px;
+
+  background:linear-gradient(145deg,#1a2d46,#060b13);
+  border:1px solid rgba(255,255,255,.18);
+
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.13),
+    0 6px 0 #020305;
+
+  font-size:27px;
+}
+
+.control:active{
+  transform:translateY(5px);
+  box-shadow:0 1px 0 #020305;
+}
+
+/* ================= PANELS ================= */
+
+.panel{
+  position:absolute;
+  inset:0;
+  z-index:500;
+
+  display:none;
+  overflow-y:auto;
+
+  padding:
+    calc(16px + env(safe-area-inset-top))
+    14px
+    calc(25px + env(safe-area-inset-bottom));
+
+  background:
+    radial-gradient(circle at 20% 0%,rgba(0,136,255,.17),transparent 30%),
+    radial-gradient(circle at 100% 70%,rgba(255,23,68,.12),transparent 30%),
+    #03070e;
+}
+
+.panel.show{
+  display:block;
+}
+
+.header{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  margin-bottom:15px;
+}
+
+.back{
+  width:45px;
+  height:45px;
+  border-radius:15px;
+  background:linear-gradient(145deg,#1c3048,#070c13);
+  border:1px solid #415a74;
+  box-shadow:0 5px 0 #020305;
+  font-size:25px;
+}
+
+.panelTitle{
+  font-size:25px;
+  font-weight:1000;
+}
+
+.panelTitle span{
+  color:#ff1744;
+}
+
+.section{
+  padding:14px;
+  margin-bottom:13px;
+  border-radius:21px;
+
+  background:linear-gradient(145deg,rgba(17,32,51,.95),rgba(3,7,13,.95));
+  border:1px solid rgba(0,136,255,.35);
+
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.07),
+    0 10px 25px rgba(0,0,0,.35);
+}
+
+.section h3{
+  margin:0 0 12px;
+  color:#5ab8ff;
+  font-size:12px;
+  letter-spacing:2px;
+}
+
+/* ================= SHOP ================= */
+
+.wallet{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  padding:13px;
+  margin-bottom:12px;
+
+  border-radius:15px;
+  background:#050b13;
+  border:1px solid #28425e;
+}
+
+.wallet strong{
+  color:#ffd52e;
+  font-size:21px;
+}
+
+.shopGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.item{
+  padding:9px;
+  border-radius:18px;
+  text-align:center;
+
+  background:linear-gradient(145deg,#152b45,#050a11);
+  border:1px solid #2c4e6d;
+
+  box-shadow:0 5px 0 #020305;
+}
+
+.itemPreview{
+  height:100px;
+  display:grid;
+  place-items:center;
+  border-radius:14px;
+  margin-bottom:8px;
+
+  background:
+    radial-gradient(circle,rgba(0,136,255,.22),transparent 60%),
+    #07111e;
+}
+
+.cloth{
+  width:55px;
+  height:62px;
+  border-radius:12px 12px 20px 20px;
+  position:relative;
+}
+
+.cloth.red{
+  background:linear-gradient(145deg,#ff496b,#bd0033);
+}
+
+.cloth.blue{
+  background:linear-gradient(145deg,#38b7ff,#005fa9);
+}
+
+.cloth.black{
+  background:linear-gradient(145deg,#596577,#0c1119);
+}
+
+.cloth.gold{
+  background:linear-gradient(145deg,#ffe875,#b77b00);
+}
+
+.cloth:before{
+  content:"";
+  position:absolute;
+  width:18px;
+  height:18px;
+  border-radius:50%;
+  top:-10px;
+  left:18px;
+  background:#ffc4a3;
+}
+
+.itemName{
+  font-size:13px;
+  font-weight:1000;
+}
+
+.price{
+  margin:6px 0;
+  color:#ffd52e;
+  font-size:12px;
+}
+
+.item button{
+  width:100%;
+  padding:9px;
+  border-radius:11px;
+  background:#087fd5;
+  font-weight:900;
+}
+
+/* ================= POWER CARDS ================= */
+
+.powerCard{
+  display:flex;
+  align-items:center;
+  gap:11px;
+
+  padding:12px;
+  margin-bottom:10px;
+
+  border-radius:19px;
+  background:linear-gradient(145deg,#152b45,#050a11);
+  border:1px solid #2c4e6d;
+  box-shadow:0 6px 0 #020305;
+}
+
+.powerIcon{
+  width:58px;
+  height:
