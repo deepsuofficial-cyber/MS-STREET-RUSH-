@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+
+<title>MACRAS STREET RUSH</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#020409;
+  color:#fff;
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+button{
+  border:0;
+  outline:0;
+  font:inherit;
+  color:inherit;
+  cursor:pointer;
+}
+
+#app{
+  position:fixed;
+  inset:0;
+  overflow:hidden;
+  background:#020409;
+}
+
+/* LOADING */
+
+#loading{
+  position:absolute;
+  inset:0;
+  z-index:9999;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  background:
+    radial-gradient(circle at 50% 35%,#102747,#03060c 60%);
+}
+
+.loaderLogo{
+  width:86px;
+  height:86px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  font-size:42px;
+  font-weight:1000;
+  background:linear-gradient(145deg,#ff3157,#930021);
+  border:3px solid #ff1744;
+  box-shadow:0 0 40px rgba(255,23,68,.55);
+}
+
+.loaderTitle{
+  margin-top:18px;
+  font-size:18px;
+  font-weight:1000;
+  letter-spacing:4px;
+}
+
+.loaderSub{
+  margin-top:8px;
+  font-size:11px;
+  color:#6bbcff;
+  letter-spacing:2px;
+}
+
+.loaderBar{
+  width:190px;
+  height:6px;
+  margin-top:18px;
+  background:#111a28;
+  border-radius:20px;
+  overflow:hidden;
+}
+
+.loaderBar div{
+  height:100%;
+  width:0%;
+  background:#168dff;
+  animation:load 1.8s forwards;
+}
+
+@keyframes load{
+  to{width:100%}
+}
+
+/* COMMON */
+
+.screen{
+  position:absolute;
+  inset:0;
+}
+
+.hidden{
+  display:none!important;
+}
+
+.glass{
+  background:linear-gradient(
+    145deg,
+    rgba(18,35,57,.94),
+    rgba(3,8,15,.96)
+  );
+  border:1px solid rgba(44,112,170,.55);
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.08),
+    0 12px 30px rgba(0,0,0,.4);
+}
+
+/* MENU */
+
+#menu{
+  overflow-y:auto;
+  padding:
+    calc(18px + env(safe-area-inset-top))
+    15px
+    calc(30px + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(circle at 50% 0%,rgba(0,136,255,.18),transparent 30%),
+    radial-gradient(circle at 100% 60%,rgba(255,23,68,.13),transparent 35%),
+    #03060c;
+}
+
+.logoArea{
+  text-align:center;
+  margin:10px 0 15px;
+}
+
+.logo{
+  width:82px;
+  height:82px;
+  margin:auto;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  font-size:40px;
+  font-weight:1000;
+  background:linear-gradient(145deg,#ff5474,#a9002b);
+  border:3px solid #ff1744;
+  box-shadow:0 0 30px rgba(255,23,68,.5);
+}
+
+.brand{
+  margin-top:10px;
+  font-size:15px;
+  font-weight:1000;
+  letter-spacing:7px;
+  color:#168dff;
+}
+
+.title{
+  margin-top:3px;
+  font-size:32px;
+  font-weight:1000;
+}
+
+.title span{
+  color:#ff1744;
+}
+
+.previewCard{
+  position:relative;
+  height:280px;
+  overflow:hidden;
+  border-radius:25px;
+}
+
+#previewCanvas{
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+.previewLabel{
+  position:absolute;
+  left:14px;
+  bottom:12px;
+  z-index:3;
+  padding:8px 11px;
+  border-radius:10px;
+  background:rgba(0,0,0,.55);
+  border:1px solid rgba(255,255,255,.12);
+  font-size:10px;
+  font-weight:1000;
+  letter-spacing:2px;
+}
+
+.menuButtons{
+  display:flex;
+  flex-direction:column;
+  gap:11px;
+  margin-top:14px;
+}
+
+.btn{
+  min-height:59px;
+  border-radius:18px;
+  font-weight:1000;
+  letter-spacing:2px;
+  background:linear-gradient(145deg,#ff3157,#a9002d);
+  border:1px solid #ff5a77;
+  box-shadow:
+    inset 0 2px rgba(255,255,255,.17),
+    0 6px 0 #5e0019,
+    0 0 20px rgba(255,23,68,.2);
+}
+
+.btn.blue{
+  background:linear-gradient(145deg,#159cff,#0057a5);
+  border-color:#48b8ff;
+  box-shadow:
+    inset 0 2px rgba(255,255,255,.16),
+    0 6px 0 #00355f;
+}
+
+.btn.dark{
+  background:linear-gradient(145deg,#17263a,#070b12);
+  border-color:#38516b;
+  box-shadow:0 6px 0 #020305;
+}
+
+.btn:active{
+  transform:translateY(5px);
+  box-shadow:0 1px 0 #020305;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:12px;
+}
+
+.smallBtn{
+  min-height:54px;
+  border-radius:16px;
+  background:linear-gradient(145deg,#14263d,#060a11);
+  border:1px solid #2d4c6a;
+  box-shadow:0 5px 0 #020305;
+  font-size:12px;
+  font-weight:1000;
+}
+
+.smallBtn:active{
+  transform:translateY(4px);
+  box-shadow:0 1px 0 #020305;
+}
+
+/* GAME */
+
+#game{
+  background:#020409;
+}
+
+#gameCanvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+
+.hud{
+  position:absolute;
+  top:calc(11px + env(safe-area-inset-top));
+  left:11px;
+  right:11px;
+  z-index:10;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  pointer-events:none;
+}
+
+.hudBox{
+  min-width:92px;
+  padding:8px 11px;
+  border-radius:14px;
+  background:rgba(3,10,19,.85);
+  border:1px solid rgba(0,136,255,.65);
+  box-shadow:0 0 15px rgba(0,136,255,.15);
+}
+
+.hudTitle{
+  font-size:9px;
+  color:#67baff;
+  font-weight:1000;
+  letter-spacing:2px;
+}
+
+.hudValue{
+  margin-top:2px;
+  font-size:20px;
+  font-weight:1000;
+}
+
+.coin{
+  color:#ffd43b;
+}
+
+.pause{
+  pointer-events:auto;
+  width:47px;
+  height:47px;
+  border-radius:15px;
+  background:linear-gradient(145deg,#22344b,#080d15);
+  border:1px solid #4d6781;
+  box-shadow:0 5px 0 #020305;
+  font-size:19px;
+}
+
+/* POWER HUD */
+
+#powerHUD{
+  position:absolute;
+  top:calc(68px + env(safe-area-inset-top));
+  right:11px;
+  width:150px;
+  z-index:12;
+}
+
+.activePower{
+  display:none;
+  margin-bottom:7px;
+  padding:8px 10px;
+  border-radius:13px;
+  background:rgba(2,9,18,.9);
+  border:1px solid #168dff;
+}
+
+.activePower.show{
+  display:block;
+}
+
+.powerName{
+  font-size:10px;
+  font-weight:1000;
+}
+
+.powerTime{
+  margin-top:3px;
+  font-size:17px;
+  font-weight:1000;
+}
+
+.powerBar{
+  height:5px;
+  margin-top:5px;
+  overflow:hidden;
+  border-radius:10px;
+  background:#05080d;
+}
+
+.powerBar div{
+  width:100%;
+  height:100%;
+  background:#168dff;
+  transform-origin:left;
+}
+
+/* CONTROLS */
+
+.controls{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:calc(15px + env(safe-area-inset-bottom));
+  z-index:20;
+  display:flex;
+  justify-content:space-between;
+  padding:0 17px;
+  pointer-events:none;
+}
+
+.controlGroup{
+  display:flex;
+  gap:9px;
+  pointer-events:auto;
+}
+
+.control{
+  width:62px;
+  height:62px;
+  border-radius:21px;
+  background:linear-gradient(145deg,#1b2d44,#060a11);
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.12),
+    0 6px 0 #020305;
+  font-size:26px;
+}
+
+.control:active{
+  transform:translateY(5px);
+  box-shadow:0 1px 0 #020305;
+}
+
+/* PANELS */
+
+.panel{
+  position:absolute;
+  inset:0;
+  z-index:100;
+  display:none;
+  overflow-y:auto;
+  padding:
+    calc(15px + env(safe-area-inset-top))
+    14px
+    calc(28px + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(circle at 20% 0%,rgba(0,136,255,.17),transparent 30%),
+    radial-gradient(circle at 100% 50%,rgba(255,23,68,.1),transparent 30%),
+    #03060c;
+}
+
+.panel.show{
+  display:block;
+}
+
+.panelHeader{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  margin-bottom:14px;
+}
+
+.back{
+  width:45px;
+  height:45px;
+  border-radius:15px;
+  background:linear-gradient(145deg,#1c3047,#070b12);
+  border:1px solid #405d78;
+  box-shadow:0 5px 0 #020305;
+  font-size:22px;
+}
+
+.panelTitle{
+  font-size:25px;
+  font-weight:1000;
+}
+
+.panelTitle span{
+  color:#ff1744;
+}
+
+.section{
+  padding:14px;
+  margin-bottom:13px;
+  border-radius:21px;
+}
+
+.sectionTitle{
+  margin-bottom:11px;
+  color:#56b9ff;
+  font-size:12px;
+  font-weight:1000;
+  letter-spacing:2px;
+}
+
+/* SHOP */
+
+.wallet{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:13px;
+  border-radius:15px;
+  background:#050a12;
+  border:1px solid #263e58;
+  margin-bottom:12px;
+}
+
+.wallet strong{
+  color:#ffd43b;
+  font-size:20px;
+}
+
+.shopGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.item{
+  padding:9px;
+  border-radius:18px;
+  text-align:center;
+  background:linear-gradient(145deg,#14263d,#060a11);
+  border:1px solid #294866;
+}
+
+.itemVisual{
+  height:100px;
+  display:grid;
+  place-items:center;
+  border-radius:14px;
+  margin-bottom:8px;
+  background:
+    radial-gradient(circle,rgba(0,136,255,.22),transparent 65%),
+    #07101d;
+  font-size:45px;
+}
+
+.itemName{
+  font-size:12px;
+  font-weight:1000;
+}
+
+.price{
+  margin:6px 0;
+  color:#ffd43b;
+  font-size:12px;
+}
+
+.item button{
+  width:100%;
+  padding:9px;
+  border-radius:11px;
+  background:#078fff;
+  font-weight:1000;
+}
+
+/* POWERUPS */
+
+.powerCard{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  margin-bottom:11px;
+  padding:12px;
+  border-radius:19px;
+  background:linear-gradient(145deg,#14263d,#060a11);
+  border:1px solid #315274;
+  box-shadow:0 6px 0 #020305;
+}
+
+.powerIcon{
+  width:58px;
+  height:58px;
+  flex-shrink:0;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 25%,#5dc8ff,#0060b5 60%,#031020);
+  border:2px solid #168dff;
+  font-size:27px;
+}
+
+.powerInfo{
+  flex:1;
+}
+
+.powerInfo h3{
+  margin:0;
+  font-size:14px;
+}
+
+.powerInfo p{
+  margin:4px 0 0;
+  color:#91a7bf;
+  font-size:10px;
+}
+
+.powerCard button{
+  padding:9px 10px;
+  border-radius:10px;
+  background:#078fff;
+  font-size:10px;
+  font-weight:1000;
+}
+
+/* CHARACTER */
+
+.characterBig{
+  height:350px;
+  overflow:hidden;
+  border-radius:20px;
+}
+
+#characterCanvas{
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+/* MISSIONS */
+
+.mission{
+  padding:13px;
+  border-radius:16px;
+  background:#07101b;
+  border:1px solid #243c55;
+  margin-bottom:9px;
+}
+
+.missionTop{
+  display:flex;
+  justify-content:space-between;
+  font-size:12px;
+  font-weight:1000;
+}
+
+.missionBar{
+  height:7px;
+  margin-top:8px;
+  border-radius:10px;
+  overflow:hidden;
+  background:#02050a;
+}
+
+.missionBar div{
+  width:0%;
+  height:100%;
+  background:#078fff;
+}
+
+/* SETTINGS */
+
+.settingRow{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  min-height:53px;
+  border-bottom:1px solid #182a3e;
+  font-size:13px;
+  font-weight:800;
+}
+
+.switch{
+  width:51px;
+  height:28px;
+  padding:3px;
+  border-radius:20px;
+  background:#18283a;
+}
+
+.switch i{
+  display:block;
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:#72869c;
+  transition:.2s;
+}
+
+.switch.on{
+  background:#078fff;
+}
+
+.switch.on i{
+  transform:translateX(23px);
+  background:#fff;
+}
+
+/* PAUSE */
+
+#pauseScreen,
+#gameOver{
+  position:absolute;
+  inset:0;
+  z-index:200;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  padding:25px;
+  background:rgba(1,4,9,.78);
+  backdrop-filter:blur(8px);
+}
+
+#pauseScreen.show,
+#gameOver.show{
+  display:flex;
+}
+
+.modal{
+  width:min(390px,92vw);
+  padding:22px;
+  border-radius:25px;
+  text-align:center;
+}
+
+.modal h2{
+  margin:0;
+  font-size:28px;
+  font-weight:1000;
+}
+
+.modal p{
+  color:#8fa5bd;
+  font-size:12px;
+}
+
+.modalButtons{
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+  margin-top:15px;
+}
+
+/* TOAST */
+
+#toast{
+  position:absolute;
+  left:50%;
+  bottom:105px;
+  z-index:1000;
+  transform:translate(-50%,20px);
+  min-width:190px;
+  max-width:90%;
+  padding:11px 15px;
+  border-radius:14px;
+  text-align:center;
+  font-size:12px;
+  font-weight:1000;
+  background:linear-gradient(145deg,#162a42,#050a11);
+  border:1px solid #078fff;
+  opacity:0;
+  pointer-events:none;
+  transition:.2s;
+}
+
+#toast.show{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+
+@media(min-width:700px){
+  #menu,
+  .panel{
+    width:520px;
+    left:50%;
+    right:auto;
+    transform:translateX(-50%);
+  }
+
+  .controls{
+    width:700px;
+    left:50%;
+    right:auto;
+    transform:translateX(-50%);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+<!-- LOADING -->
+
+<div id="loading">
+  <div class="loaderLogo">M</div>
+  <div class="loaderTitle">MACRAS</div>
+  <div class="loaderSub">STREET RUSH</div>
+  <div class="loaderBar"><div></div></div>
+</div>
+
+<!-- MENU -->
+
+<div id="menu" class="screen">
+
+  <div class="logoArea">
+    <div class="logo">M</div>
+    <div class="brand">MACRAS</div>
+    <div class="title">STREET <span>RUSH</span></div>
+  </div>
+
+  <div class="previewCard glass">
+    <canvas id="previewCanvas"></canvas>
+    <div class="previewLabel">3D RUNNER</div>
+  </div>
+
+  <div class="menuButtons">
+    <button class="btn" id="playBtn">▶ PLAY</button>
+    <button class="btn blue" id="shopBtn">🛒 STREET SHOP</button>
+  </div>
+
+  <div class="grid">
+    <button class="smallBtn" id="powerBtn">⚡ POWER-UPS</button>
+    <button class="smallBtn" id="characterBtn">👤 CHARACTER</button>
+    <button class="smallBtn" id="missionBtn">🎯 MISSIONS</button>
+    <button class="smallBtn" id="settingBtn">⚙ SETTINGS</button>
+  </div>
+
+</div>
+
+<!-- GAME -->
+
+<div id="game" class="screen hidden">
+
+  <canvas id="gameCanvas"></canvas>
+
+  <div class="hud">
+
+    <div class="hudBox">
+      <div class="hudTitle">SCORE</div>
+      <div class="hudValue" id="score">0</div>
+    </div>
+
+    <button class="pause" id="pauseBtn">Ⅱ</button>
+
+    <div class="hudBox">
+      <div class="hudTitle">COINS</div>
+      <div class="hudValue coin" id="coins">0</div>
+    </div>
+
+  </div>
+
+  <div id="powerHUD">
+
+    <div class="activePower" id="speedHUD">
+      <div class="powerName">⚡ SPEED BOOST</div>
+      <div class="powerTime" id="speedTime">8.0s</div>
+      <div class="powerBar">
+        <div id="speedFill"></div>
+      </div>
+    </div>
+
+    <div class="activePower" id="shieldHUD">
+      <div class="powerName">🛡 SHIELD</div>
+      <div class="powerTime" id="shieldTime">12.0s</div>
+      <div class="powerBar">
+        <div id="shieldFill"></div>
+      </div>
+    </div>
+
+    <div class="activePower" id="magnetHUD">
+      <div class="powerName">🧲 MAGNET</div>
+      <div class="powerTime" id="magnetTime">6.0s</div>
+      <div class="powerBar">
+        <div id="magnetFill"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="controls">
+
+    <div class="controlGroup">
+      <button class="control" id="leftBtn">‹</button>
+      <button class="control" id="rightBtn">›</button>
+    </div>
+
+    <div class="controlGroup">
+      <button class="control" id="slideBtn">⌄</button>
+      <button class="control" id="jumpBtn">⌃</button>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- PAUSE -->
+
+<div id="pauseScreen">
+
+  <div class="modal glass">
+
+    <h2>PAUSED</h2>
+    <p>Street Rush is waiting.</p>
+
+    <div class="modalButtons">
+      <button class="btn blue" id="resumeBtn">▶ RESUME</button>
+      <button class="btn dark" id="restartBtn">↻ RESTART</button>
+      <button class="btn dark" id="menuBtn">⌂ MAIN MENU</button>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- GAME OVER -->
+
+<div id="gameOver">
+
+  <div class="modal glass">
+
+    <h2>RUN OVER</h2>
+
+    <p>
+      SCORE:
+      <strong id="finalScore">0</strong>
+    </p>
+
+    <p>
+      COINS:
+      <strong id="finalCoins">0</strong>
+    </p>
+
+    <div class="modalButtons">
+      <button class="btn" id="againBtn">↻ RUN AGAIN</button>
+      <button class="btn dark" id="overMenuBtn">⌂ MAIN MENU</button>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- SHOP -->
+
+<div class="panel" id="shopPanel">
+
+  <div class="panelHeader">
+    <button class="back" data-close="shopPanel">‹</button>
+    <div class="panelTitle">STREET <span>SHOP</span></div>
+  </div>
+
+  <div class="wallet">
+    <span>YOUR COINS</span>
+    <strong>● <span id="shopCoins">0</span></strong>
+  </div>
+
+  <div class="section glass">
+
+    <div class="sectionTitle">CLOTHES</div>
+
+    <div class="shopGrid">
+
+      <div class="item">
+        <div class="itemVisual">👕</div>
+        <div class="itemName">RED RUNNER</div>
+        <div class="price">● 300</div>
+        <button data-item="red" data-price="300">BUY</button>
+      </div>
+
+      <div class="item">
+        <div class="itemVisual">🧥</div>
+        <div class="itemName">BLUE SHADOW</div>
+        <div class="price">● 500</div>
+        <button data-item="blue" data-price="500">BUY</button>
+      </div>
+
+      <div class="item">
+        <div class="itemVisual">🥋</div>
+        <div class="itemName">STREET PRO</div>
+        <div class="price">● 800</div>
+        <button data-item="pro" data-price="800">BUY</button>
+      </div>
+
+      <div class="item">
+        <div class="itemVisual">🧢</div>
+        <div class="itemName">NIGHT RIDER</div>
+        <div class="price">● 1200</div>
+        <button data-item="night" data-price="1200">BUY</button>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- POWERUPS -->
+
+<div class="panel" id="powerPanel">
+
+  <div class="panelHeader">
+    <button class="back" data-close="powerPanel">‹</button>
+    <div class="panelTitle">POWER<span>-UPS</span></div>
+  </div>
+
+  <div class="powerCard">
+    <div class="powerIcon">⚡</div>
+    <div class="powerInfo">
+      <h3>SPEED BOOST</h3>
+      <p>Increase running speed for 8 seconds.</p>
+    </div>
+    <button data-power="speed">EQUIP</button>
+  </div>
+
+  <div class="powerCard">
+    <div class="powerIcon">🛡</div>
+    <div class="powerInfo">
+      <h3>SHIELD</h3>
+      <p>Protects you from one obstacle hit.</p>
+    </div>
+    <button data-power="shield">EQUIP</button>
+  </div>
+
+  <div class="powerCard">
+    <div class="powerIcon">🧲</div>
+    <div class="powerInfo">
+      <h3>MAGNET</h3>
+      <p>Pulls nearby coins toward the runner.</p>
+    </div>
+    <button data-power="magnet">EQUIP</button>
+  </div>
+
+</div>
+
+<!-- CHARACTER -->
+
+<div class="panel" id="characterPanel">
+
+  <div class="panelHeader">
+    <button class="back" data-close="characterPanel">‹</button>
+    <div class="panelTitle">CHARACTER</div>
+  </div>
+
+  <div class="section glass">
+
+    <div class="sectionTitle">YOUR RUNNER</div>
+
+    <div class="characterBig">
+      <canvas id="characterCanvas"></canvas>
+    </div>
+
+    <button class="btn blue" id="equipCurrent" style="width:100%;margin-top:12px">
+      ✓ EQUIPPED
+    </button>
+
+  </div>
+
+</div>
+
+<!-- MISSIONS -->
+
+<div class="panel" id="missionPanel">
+
+  <div class="panelHeader">
+    <button class="back" data-close="missionPanel">‹</button>
+    <div class="panelTitle">MISSIONS</div>
+  </div>
+
+  <div class="section glass">
+
+    <div class="mission">
+
+      <div class="missionTop">
+        <span>Collect 100 Coins</span>
+        <span id="m1text">0/100</span>
+      </div>
+
+      <div class="missionBar">
+        <div id="m1bar"></div>
+      </div>
+
+    </div>
+
+    <div class="mission">
+
+      <div class="missionTop">
+        <span>Run 1,000m</span>
+        <span id="m2text">0/1000</span>
+      </div>
+
+      <div class="missionBar">
+        <div id="m2bar"></div>
+      </div>
+
+    </div>
+
+    <div class="mission">
+
+      <div class="missionTop">
+        <span>Score 5,000</span>
+        <span id="m3text">0/5000</span>
+      </div>
+
+      <div class="missionBar">
+        <div id="m3bar"></div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- SETTINGS -->
+
+<div class="panel" id="settingPanel">
+
+  <div class="panelHeader">
+    <button class="back" data-close="settingPanel">‹</button>
+    <div class="panelTitle">SETTINGS</div>
+  </div>
+
+  <div class="section glass">
+
+    <div class="settingRow">
+      <span>Sound</span>
+      <div class="switch on" id="soundSwitch">
+        <i></i>
+      </div>
+    </div>
+
+    <div class="settingRow">
+      <span>Vibration</span>
+      <div class="switch on" id="vibrationSwitch">
+        <i></i>
+      </div>
+    </div>
+
+    <div class="settingRow">
+      <span>High Quality</span>
+      <div class="switch on" id="qualitySwitch">
+        <i></i>
+      </div>
+    </div>
+
+  </div>
+
+  <button class="btn dark" id="resetBtn">
+    RESET GAME DATA
+  </button>
+
+</div>
+
+<div id="toast"></div>
+
+</div>
+
+<!-- THREE.JS -->
+<script type="importmap">
+{
+  "imports":{
+    "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+
+/* =========================================================
+   BASIC DATA
+========================================================= */
+
+const M
