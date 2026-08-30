@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+
+<title>MACRAS STREET RUSH</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#02050a;
+  font-family:Arial,Helvetica,sans-serif;
+  color:#fff;
+}
+
+button{
+  border:0;
+  outline:0;
+  font:inherit;
+  color:inherit;
+  cursor:pointer;
+}
+
+#app{
+  position:fixed;
+  inset:0;
+  overflow:hidden;
+  background:#02050a;
+}
+
+/* =====================================================
+   BOOT
+===================================================== */
+
+#boot{
+  position:absolute;
+  inset:0;
+  z-index:9999;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  background:
+    radial-gradient(circle at 50% 45%,#102542 0,#06111f 35%,#02050a 75%);
+}
+
+.bootLogo{
+  width:105px;
+  height:105px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  font-size:53px;
+  font-weight:1000;
+  background:linear-gradient(145deg,#ff4164,#c60035 60%,#35000e);
+  border:3px solid #ff1744;
+  box-shadow:
+    0 0 18px #ff1744,
+    0 0 60px rgba(255,23,68,.35),
+    inset 0 4px 10px rgba(255,255,255,.3);
+}
+
+.bootBrand{
+  margin-top:22px;
+  font-size:24px;
+  font-weight:1000;
+  letter-spacing:9px;
+}
+
+.bootSub{
+  margin-top:7px;
+  color:#168fff;
+  font-size:15px;
+  letter-spacing:5px;
+  font-weight:900;
+}
+
+.bootBar{
+  width:220px;
+  height:6px;
+  margin-top:34px;
+  border-radius:20px;
+  overflow:hidden;
+  background:#142236;
+}
+
+.bootBar div{
+  width:100%;
+  height:100%;
+  transform-origin:left;
+  background:linear-gradient(90deg,#ff1744,#008cff);
+  animation:bootBar .7s ease-out forwards;
+}
+
+.bootStatus{
+  margin-top:14px;
+  color:#758aa2;
+  font-size:12px;
+  font-weight:700;
+}
+
+@keyframes bootBar{
+  from{transform:scaleX(0)}
+  to{transform:scaleX(1)}
+}
+
+/* =====================================================
+   MAIN MENU
+===================================================== */
+
+#menu{
+  position:absolute;
+  inset:0;
+  z-index:100;
+  display:none;
+  overflow-y:auto;
+  padding:
+    calc(18px + env(safe-area-inset-top))
+    14px
+    calc(25px + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(circle at 50% 5%,rgba(0,136,255,.2),transparent 35%),
+    radial-gradient(circle at 90% 70%,rgba(255,23,68,.12),transparent 30%),
+    #03070e;
+}
+
+.logoArea{
+  text-align:center;
+}
+
+.logo{
+  width:82px;
+  height:82px;
+  margin:auto;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  font-size:43px;
+  font-weight:1000;
+  background:linear-gradient(145deg,#ff5575,#d8003b 55%,#29000a);
+  border:3px solid #ff1744;
+  box-shadow:
+    0 0 20px rgba(255,23,68,.7),
+    inset 0 4px 12px rgba(255,255,255,.2);
+}
+
+.brand{
+  margin-top:10px;
+  color:#158eff;
+  font-size:16px;
+  font-weight:1000;
+  letter-spacing:7px;
+}
+
+.gameTitle{
+  margin-top:5px;
+  font-size:31px;
+  font-weight:1000;
+}
+
+.gameTitle span{
+  color:#ff1744;
+}
+
+/* CHARACTER PREVIEW */
+
+.characterCard{
+  position:relative;
+  height:260px;
+  margin-top:16px;
+  border-radius:27px;
+  overflow:hidden;
+  border:1px solid rgba(0,136,255,.5);
+  background:
+    radial-gradient(circle at 50% 35%,rgba(0,136,255,.22),transparent 42%),
+    linear-gradient(145deg,#12243b,#03070d);
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.08),
+    0 14px 35px rgba(0,0,0,.5);
+}
+
+.characterCard canvas{
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+.previewLoading{
+  position:absolute;
+  inset:auto 0 12px;
+  text-align:center;
+  color:#71869d;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:1px;
+  pointer-events:none;
+}
+
+.mainButtons{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-top:14px;
+}
+
+.btn{
+  min-height:59px;
+  border-radius:18px;
+  font-size:17px;
+  font-weight:1000;
+  letter-spacing:2px;
+  background:linear-gradient(145deg,#ff3158,#b80030);
+  border:1px solid #ff5270;
+  box-shadow:
+    inset 0 2px rgba(255,255,255,.18),
+    0 7px 0 #620019,
+    0 0 25px rgba(255,23,68,.2);
+}
+
+.btn.blue{
+  background:linear-gradient(145deg,#149cff,#005aaa);
+  border-color:#42b6ff;
+  box-shadow:
+    inset 0 2px rgba(255,255,255,.18),
+    0 7px 0 #00386b;
+}
+
+.btn.dark{
+  background:linear-gradient(145deg,#1a2a3e,#060a11);
+  border-color:#405a76;
+  box-shadow:0 6px 0 #020305;
+}
+
+.btn:active,
+.smallBtn:active,
+.control:active{
+  transform:translateY(5px);
+  box-shadow:0 2px 0 #020305;
+}
+
+.menuGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:13px;
+}
+
+.smallBtn{
+  min-height:54px;
+  border-radius:16px;
+  background:linear-gradient(145deg,#15273d,#060b12);
+  border:1px solid #2c4b69;
+  color:#dcecff;
+  font-weight:900;
+  box-shadow:0 5px 0 #020306;
+}
+
+/* =====================================================
+   GAME
+===================================================== */
+
+#game{
+  position:absolute;
+  inset:0;
+  display:none;
+  overflow:hidden;
+  background:#050a10;
+}
+
+#gameCanvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+}
+
+/* HUD */
+
+.hud{
+  position:absolute;
+  top:calc(10px + env(safe-area-inset-top));
+  left:10px;
+  right:10px;
+  z-index:20;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  pointer-events:none;
+}
+
+.hudBox{
+  min-width:105px;
+  padding:8px 11px;
+  border-radius:15px;
+  border:1px solid rgba(0,145,255,.7);
+  background:rgba(3,12,23,.87);
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.1),
+    0 7px 20px rgba(0,0,0,.4);
+}
+
+.hudTitle{
+  font-size:9px;
+  color:#54b9ff;
+  letter-spacing:2px;
+  font-weight:900;
+}
+
+.hudValue{
+  margin-top:2px;
+  font-size:21px;
+  font-weight:1000;
+}
+
+.coinValue{
+  color:#ffd83d;
+}
+
+.pause{
+  width:47px;
+  height:47px;
+  border-radius:15px;
+  pointer-events:auto;
+  background:linear-gradient(145deg,#24354a,#080d15);
+  border:1px solid #526a84;
+  box-shadow:0 6px 0 #020305;
+  font-size:18px;
+}
+
+/* POWER HUD */
+
+.powerHUD{
+  position:absolute;
+  top:calc(67px + env(safe-area-inset-top));
+  right:10px;
+  width:160px;
+  z-index:20;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  pointer-events:none;
+}
+
+.powerStatus{
+  display:none;
+  padding:7px 9px;
+  border-radius:13px;
+  background:rgba(2,8,17,.91);
+  border:1px solid #008cff;
+  box-shadow:0 0 17px rgba(0,140,255,.25);
+}
+
+.powerStatus.active{
+  display:block;
+}
+
+.powerName{
+  font-size:10px;
+  font-weight:1000;
+  letter-spacing:1px;
+}
+
+.powerTime{
+  margin-top:2px;
+  font-size:17px;
+  font-weight:1000;
+}
+
+.powerBar{
+  height:4px;
+  margin-top:4px;
+  border-radius:20px;
+  background:#02050a;
+  overflow:hidden;
+}
+
+.powerFill{
+  width:100%;
+  height:100%;
+  transform-origin:left;
+  background:#00a8ff;
+}
+
+/* CONTROLS */
+
+.controls{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:calc(16px + env(safe-area-inset-bottom));
+  z-index:30;
+  display:flex;
+  justify-content:space-between;
+  padding:0 15px;
+  pointer-events:none;
+}
+
+.controlGroup{
+  display:flex;
+  gap:9px;
+  pointer-events:auto;
+}
+
+.control{
+  width:62px;
+  height:62px;
+  border-radius:20px;
+  background:linear-gradient(145deg,#1a2d44,#060b12);
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.12),
+    0 6px 0 #020305;
+  font-size:28px;
+}
+
+/* =====================================================
+   PANELS
+===================================================== */
+
+.panel{
+  position:absolute;
+  inset:0;
+  z-index:500;
+  display:none;
+  overflow-y:auto;
+  padding:
+    calc(16px + env(safe-area-inset-top))
+    14px
+    calc(25px + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(circle at 10% 0%,rgba(0,136,255,.18),transparent 32%),
+    radial-gradient(circle at 90% 60%,rgba(255,23,68,.12),transparent 35%),
+    #03070e;
+}
+
+.panel.show{
+  display:block;
+}
+
+.panelHeader{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  margin-bottom:15px;
+}
+
+.back{
+  width:44px;
+  height:44px;
+  border-radius:14px;
+  background:linear-gradient(145deg,#1b2d43,#070b12);
+  border:1px solid #415b76;
+  box-shadow:0 5px 0 #020305;
+  font-size:25px;
+}
+
+.panelTitle{
+  font-size:25px;
+  font-weight:1000;
+}
+
+.panelTitle span{
+  color:#ff1744;
+}
+
+.section{
+  margin-bottom:13px;
+  padding:14px;
+  border-radius:21px;
+  background:linear-gradient(145deg,rgba(17,32,51,.96),rgba(3,7,13,.96));
+  border:1px solid rgba(0,136,255,.35);
+  box-shadow:
+    inset 0 1px rgba(255,255,255,.07),
+    0 10px 25px rgba(0,0,0,.35);
+}
+
+.section h3{
+  margin:0 0 11px;
+  color:#51b6ff;
+  font-size:12px;
+  letter-spacing:2px;
+}
+
+/* SHOP */
+
+.wallet{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:13px;
+  margin-bottom:12px;
+  border-radius:15px;
+  background:#050b13;
+  border:1px solid #29415d;
+}
+
+.wallet strong{
+  color:#ffd83d;
+  font-size:21px;
+}
+
+.shopGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.shopItem{
+  padding:9px;
+  border-radius:18px;
+  text-align:center;
+  background:linear-gradient(145deg,#15283f,#060b12);
+  border:1px solid #2b4c6c;
+  box-shadow:0 5px 0 #020305;
+}
+
+.itemPreview{
+  height:105px;
+  display:grid;
+  place-items:center;
+  border-radius:14px;
+  margin-bottom:8px;
+  background:
+    radial-gradient(circle,rgba(0,136,255,.2),transparent 60%),
+    #07111e;
+  font-size:50px;
+}
+
+.itemName{
+  font-size:13px;
+  font-weight:1000;
+}
+
+.price{
+  color:#ffd83d;
+  font-size:12px;
+  margin:7px;
+}
+
+.shopItem button{
+  width:100%;
+  padding:9px;
+  border-radius:11px;
+  background:#078fff;
+  font-weight:900;
+}
+
+/* POWER CARDS */
+
+.powerGrid{
+  display:flex;
+  flex-direction:column;
+  gap:11px;
+}
+
+.powerCard{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:13px;
+  border-radius:20px;
+  background:linear-gradient(145deg,#152940,#050a11);
+  border:1px solid #315575;
+  box-shadow:0 6px 0 #020305;
+}
+
+.powerIcon{
+  width:62px;
+  height:62px;
+  flex-shrink:0;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 25%,#64d0ff,#0062b9 55%,#031326);
+  border:2px solid #008cff;
+  font-size:29px;
+}
+
+.powerCard.red .powerIcon{
+  background:radial-gradient(circle at 30% 25%,#ff6882,#c60035 55%,#26000a);
+  border-color:#ff1744;
+}
+
+.powerInfo{
+  flex:1;
+}
+
+.powerInfo h3{
+  margin:0;
+  font-size:15px;
+}
+
+.powerInfo p{
+  margin:4px 0 0;
+  color:#8da3ba;
+  font-size:11px;
+}
+
+.powerCard button{
+  padding:9px 11px;
+  border-radius:11px;
+  background:#078fff;
+  font-size:11px;
+  font-weight:1000;
+}
+
+/* MISSIONS */
+
+.mission{
+  padding:13px;
+  border-radius:16px;
+  margin-bottom:9px;
+  background:#07101a;
+  border:1px solid #263e58;
+}
+
+.missionTop{
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  font-weight:900;
+}
+
+.missionProgress{
+  height:7px;
+  margin-top:9px;
+  border-radius:10px;
+  overflow:hidden;
+  background:#02050a;
+}
+
+.missionProgress div{
+  width:0;
+  height:100%;
+  background:#008cff;
+}
+
+/* SETTINGS */
+
+.settingRow{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px 0;
+  border-bottom:1px solid #17283b;
+}
+
+.switch{
+  width:51px;
+  height:28px;
+  padding:3px;
+  border-radius:20px;
+  background:#1a2b3e;
+}
+
+.switch i{
+  display:block;
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:#71859a;
+  transition:.2s;
+}
+
+.switch.on{
+  background:#008cff;
+}
+
+.switch.on i{
+  transform:translateX(23px);
+  background:#fff;
+}
+
+/* =====================================================
+   MODALS
+===================================================== */
+
+.modal{
+  position:absolute;
+  inset:0;
+  z-index:900;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.7);
+  backdrop-filter:blur(8px);
+}
+
+.modal.show{
+  display:flex;
+}
+
+.modalBox{
+  width:min(430px,94vw);
+  padding:23px;
+  border-radius:25px;
+  background:linear-gradient(145deg,#14253a,#050a11);
+  border:1px solid #355372;
+  box-shadow:0 25px 70px rgba(0,0,0,.7);
+  text-align:center;
+}
+
+.modalTitle{
+  font-size:27px;
+  font-weight:1000;
+}
+
+.modalTitle span{
+  color:#ff1744;
+}
+
+.modalScore{
+  margin:17px 0;
+  font-size:38px;
+  font-weight:1000;
+}
+
+.modalCoins{
+  color:#ffd83d;
+  font-size:16px;
+  font-weight:900;
+  margin-bottom:17px;
+}
+
+.modalBtns{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+/* TOAST */
+
+#toast{
+  position:absolute;
+  left:50%;
+  bottom:105px;
+  z-index:1000;
+  min-width:190px;
+  max-width:90%;
+  padding:11px 16px;
+  transform:translate(-50%,20px);
+  opacity:0;
+  pointer-events:none;
+  border-radius:14px;
+  text-align:center;
+  font-size:12px;
+  font-weight:1000;
+  background:linear-gradient(145deg,#172a41,#050a11);
+  border:1px solid #008cff;
+  box-shadow:0 8px 30px rgba(0,0,0,.6);
+  transition:.22s;
+}
+
+#toast.show{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+
+/* DESKTOP */
+
+@media(min-width:700px){
+  #menu,
+  .panel{
+    width:520px;
+    left:50%;
+    right:auto;
+    transform:translateX(-50%);
+  }
+
+  .controls{
+    max-width:700px;
+    left:50%;
+    right:auto;
+    transform:translateX(-50%);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+<!-- =====================================================
+     FAST BOOT
+===================================================== -->
+
+<div id="boot">
+  <div class="bootLogo">M</div>
+  <div class="bootBrand">MACRAS</div>
+  <div class="bootSub">STREET RUSH</div>
+
+  <div class="bootBar">
+    <div></div>
+  </div>
+
+  <div class="bootStatus">Loading interface...</div>
+</div>
+
+<!-- =====================================================
+     MENU
+===================================================== -->
+
+<div id="menu">
+
+  <div class="logoArea">
+    <div class="logo">M</div>
+    <div class="brand">MACRAS</div>
+    <div class="gameTitle">STREET <span>RUSH</span></div>
+  </div>
+
+  <div class="characterCard">
+    <canvas id="previewCanvas"></canvas>
+    <div class="previewLoading" id="previewLoading">
+      3D CHARACTER READYING...
+    </div>
+  </div>
+
+  <div class="mainButtons">
+    <button class="btn" id="playBtn">▶ PLAY</button>
+    <button class="btn blue" id="shopBtn">🛒 STREET SHOP</button>
+  </div>
+
+  <div class="menuGrid">
+    <button class="smallBtn" id="powerBtn">⚡ POWER-UPS</button>
+    <button class="smallBtn" id="characterBtn">👤 CHARACTER</button>
+    <button class="smallBtn" id="missionBtn">🎯 MISSIONS</button>
+    <button class="smallBtn" id="settingBtn">⚙ SETTINGS</button>
+  </div>
+
+</div>
+
+<!-- =====================================================
+     GAME
+===================================================== -->
+
+<div id="game">
+
+  <canvas id="gameCanvas"></canvas>
+
+  <div class="hud">
+
+    <div class="hudBox">
+      <div class="hudTitle">SCORE</div>
+      <div class="hudValue" id="score">0</div>
+    </div>
+
+    <button class="pause" id="pauseBtn">Ⅱ</button>
+
+    <div class="hudBox">
+      <div class="hudTitle">COINS</div>
+      <div class="hudValue coinValue" id="coins">0</div>
+    </div>
+
+  </div>
+
+  <div class="powerHUD">
+
+    <div class="powerStatus" id="speedHUD">
+      <div class="powerName">⚡ SPEED BOOST</div>
+      <div class="powerTime" id="speedTime">8.0s</div>
+      <div class="powerBar">
+        <div class="powerFill" id="speedFill"></div>
+      </div>
+    </div>
+
+    <div class="powerStatus" id="shieldHUD">
+      <div class="powerName">🛡 SHIELD</div>
+      <div class="powerTime" id="shieldTime">12.0s</div>
+      <div class="powerBar">
+        <div class="powerFill" id="shieldFill"></div>
+      </div>
+    </div>
+
+    <div class="powerStatus" id="magnetHUD">
+      <div class="powerName">🧲 MAGNET</div>
+      <div class="powerTime" id="magnetTime">6.0s</div>
+      <div class="powerBar">
+        <div class="powerFill" id="magnetFill"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="controls">
+
+    <div class="controlGroup">
+      <button class="control" id="leftBtn">‹</button>
+      <button class="control" id="rightBtn">›</button>
+    </div>
+
+    <div class="controlGroup">
+      <button class="control" id="slideBtn">⌄</button>
+      <button class="control" id="jumpBtn">⌃</button>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- =====================================================
+     SHOP
+===================================================== -->
+
+<div class="panel" id="shopPanel">
+
+  <div class="panelHeader">
+    <button class="back" data-close="shopPanel">‹</button>
+    <div class="panelTitle">STREET <span>SHOP</span></div>
+  </div>
+
+  <div class="wallet">
+    <span>YOUR COINS</span>
+    <strong>● <span id="shopCoins">0</span></strong>
+  </div>
+
+  <div class="section">
+    <h3>CLOTHES</h3>
+
+    <div class="shopGrid">
+
+      <div class="shopItem">
+        <div class="itemPreview">👕</div>
+        <div class="itemName">RED RUNNER</div>
+        <div class="price">● 300</div>
+        <button data-item="red">BUY</button>
+      </div>
+
+      <div class="shopItem">
+        <div class="itemPreview">🧥</div>
+        <div class="itemName">BLUE SHADOW</div>
+        <div class="price">● 500</div>
+        <button data-item="blue">BUY</button>
+      </div>
+
+      <div class="shopItem">
+        <div class="itemPreview">🥋</div>
+        <div class="itemName">STREET PRO</div>
+        <div class="price">● 800</div>
+        <button data-item="pro">BUY</button>
+      </div>
+
+      <div class="shopItem">
+        <div class="itemPreview">🧢</div>
+        <div class="itemName">NIGHT RIDER</div>
+        <div class="price">● 1200</div>
+        <button data-item="night">BUY</button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- =====================================================
+     POWERUPS
+===================================================== -->
+
+<div class="panel" id="powerPanel">
+
+  <div class="panelHeader">
+    <button class="back" data-close="powerPanel">‹</button>
+    <div class="panelTitle">POWER<span>-UPS</span></div>
+  </div>
+
+  <div class="powerGrid">
+
+    <div class="powerCard red">
+      <div class="powerIcon">⚡</div>
+      <div class="powerInfo">
+        <h3>SPEED BOOST</h3>
+        <p>Run much faster for 8 seconds.</p>
+      </div>
+      <button data-power="speed">EQUIP</button>
+    </div>
+
+    <div class="powerCard">
+      <div class="powerIcon">🛡</div>
+      <div class="powerInfo">
+        <h3>SHIELD</h3>
+        <p>Protects you from one crash.</p>
+      </div>
+      <button data-power="shield">EQUIP</button>
+    </div>
+
+    <div class="powerCard">
+      <div class="powerIcon">🧲</div>
+      <div class="powerInfo">
+        <h3>MAGNET</h3>
+        <p>Pulls nearby coins for 6 seconds.</p>
+      </div>
+      <button data-power="magnet">EQUIP</button>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- =====================================================
+     CHARACTER
+===================================================== -->
+
+<div class="panel" id="characterPanel">
+
+  <div class="panelHeader">
+    <button class="back" data-close="characterPanel">‹</button>
+    <div class="panelTitle">CHARACTER</div>
+  </div>
+
+  <div class="section">
+
+    <h3>YOUR 3D RUNNER</h3>
+
+    <div class="characterCard" style="height:340px">
+      <canvas id="characterCanvas"></canvas>
+    </div>
+
+    <button class="btn blue" style="margin-top:12px" id="equipCurrent">
+      ✓ EQUIPPED
+    </button>
+
+  </div>
+
+</div>
+
+<!-- =====================================================
+     MISSIONS
+===================================================== -->
+
+<div class="panel" id="missionPanel">
+
+  <div class="panelHeader">
+    <button class="back" data-close="missionPanel">‹</button>
+    <div class="panelTitle">MISSIONS</div>
+  </div>
+
+  <div class="section">
+
+    <div class="mission">
+      <div class="missionTop">
+        <span>Collect 100 Coins</span>
+        <span id="m1text">0/100</span>
+      </div>
+      <div class="missionProgress">
+        <div id="m1bar"></div>
+      </div>
+    </div>
+
+    <div class="mission">
+      <div class="missionTop">
+        <span>Run 1,000m</span>
+        <span id="m2text">0/1000</span>
+      </div>
+      <div class="missionProgress">
+        <div id="m2bar"></div>
+      </div
