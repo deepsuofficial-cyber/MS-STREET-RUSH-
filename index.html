@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>MACRAS STREET RUSH</title>
+
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{
+ margin:0;width:100%;height:100%;overflow:hidden;
+ background:#02050a;color:white;
+ font-family:Arial,Helvetica,sans-serif;
+}
+button{border:0;outline:0;font:inherit;color:white}
+#app{position:fixed;inset:0;overflow:hidden;background:#02050a}
+
+/* LOADING */
+#loading{
+ position:absolute;inset:0;z-index:9999;
+ display:flex;align-items:center;justify-content:center;
+ flex-direction:column;
+ background:
+ radial-gradient(circle at 50% 45%,#10284b,#030811 55%,#010204);
+ transition:opacity .35s;
+}
+.loaderLogo{
+ width:105px;height:105px;border-radius:50%;
+ display:grid;place-items:center;
+ font-size:52px;font-weight:1000;
+ border:4px solid #ff1744;
+ background:radial-gradient(circle at 35% 25%,#ff5875,#d60039 50%,#25000b);
+ box-shadow:0 0 45px rgba(255,23,68,.65);
+}
+.loaderBrand{
+ margin-top:18px;
+ font-size:23px;font-weight:1000;
+ letter-spacing:7px;
+}
+.loaderGame{
+ margin-top:7px;color:#178fff;
+ font-weight:900;letter-spacing:5px;
+}
+.loaderTrack{
+ width:230px;height:6px;
+ margin-top:22px;border-radius:20px;
+ background:#142238;overflow:hidden;
+}
+.loaderFill{
+ width:0;height:100%;
+ background:linear-gradient(90deg,#ff1744,#008cff);
+ animation:loading 1.2s ease-out forwards;
+}
+.loaderStatus{
+ margin-top:10px;color:#758ba6;font-size:12px;
+}
+@keyframes loading{to{width:100%}}
+
+/* MENU */
+#menu{
+ position:absolute;inset:0;z-index:20;
+ overflow-y:auto;
+ padding:calc(18px + env(safe-area-inset-top)) 15px
+ calc(25px + env(safe-area-inset-bottom));
+ background:
+ radial-gradient(circle at 50% 0%,rgba(0,136,255,.18),transparent 32%),
+ radial-gradient(circle at 100% 65%,rgba(255,23,68,.14),transparent 32%),
+ #03070e;
+}
+.logoArea{text-align:center;margin:5px 0 15px}
+.logo{
+ width:78px;height:78px;margin:auto;
+ border-radius:50%;display:grid;place-items:center;
+ font-size:39px;font-weight:1000;
+ background:radial-gradient(circle at 35% 25%,#ff5a78,#d9003b 48%,#21000a);
+ border:3px solid #ff1744;
+ box-shadow:0 0 28px rgba(255,23,68,.65);
+}
+.brand{
+ margin-top:9px;font-weight:1000;
+ letter-spacing:6px;color:#168dff;
+}
+.title{
+ font-size:31px;font-weight:1000;margin-top:4px;
+}
+.title span{color:#ff1744}
+
+.characterCard{
+ position:relative;height:235px;
+ overflow:hidden;border-radius:25px;
+ border:1px solid #1d5d91;
+ background:
+ radial-gradient(circle at 50% 30%,rgba(0,136,255,.2),transparent 45%),
+ linear-gradient(145deg,#122238,#03070c);
+ box-shadow:inset 0 1px rgba(255,255,255,.1),0 15px 35px #0008;
+}
+.characterCard canvas{width:100%;height:100%;display:block}
+
+.mainButtons{display:grid;gap:11px;margin-top:14px}
+.btn{
+ min-height:59px;border-radius:18px;
+ font-weight:1000;letter-spacing:2px;
+ background:linear-gradient(145deg,#ff3158,#b80031);
+ border:1px solid #ff5a78;
+ box-shadow:0 7px 0 #650019,0 0 25px #ff174433;
+}
+.btn.blue{
+ background:linear-gradient(145deg,#159dff,#005aaa);
+ border-color:#48b7ff;
+ box-shadow:0 7px 0 #003b6f,0 0 25px #008cff33;
+}
+.btn.dark{
+ background:linear-gradient(145deg,#18283d,#070c13);
+ border-color:#38516d;
+ box-shadow:0 6px 0 #020305;
+}
+.btn:active{transform:translateY(5px);box-shadow:0 1px 0 #000}
+
+.grid{
+ display:grid;grid-template-columns:1fr 1fr;
+ gap:10px;margin-top:12px;
+}
+.small{
+ min-height:54px;border-radius:15px;
+ background:linear-gradient(145deg,#14263d,#050a11);
+ border:1px solid #2d4d6b;
+ box-shadow:0 5px 0 #020305;
+ font-weight:900;
+}
+.small:active{transform:translateY(4px);box-shadow:0 1px #000}
+
+/* GAME */
+#game{position:absolute;inset:0;display:none;background:#02050a}
+#gameCanvas{position:absolute;inset:0;width:100%;height:100%}
+
+.hud{
+ position:absolute;z-index:30;
+ top:calc(10px + env(safe-area-inset-top));
+ left:10px;right:10px;
+ display:flex;align-items:flex-start;
+ justify-content:space-between;
+ pointer-events:none;
+}
+.hudBox{
+ min-width:92px;padding:8px 11px;
+ border-radius:14px;
+ background:#06101ddd;
+ border:1px solid #23679c;
+ box-shadow:0 6px 20px #0007;
+}
+.hudLabel{
+ color:#62bfff;font-size:9px;
+ font-weight:1000;letter-spacing:2px;
+}
+.hudValue{font-size:21px;font-weight:1000;margin-top:2px}
+.coin{color:#ffd83d}
+#pause{
+ pointer-events:auto;
+ width:48px;height:48px;border-radius:15px;
+ background:linear-gradient(145deg,#1c2c42,#070b12);
+ border:1px solid #47627f;
+ box-shadow:0 5px 0 #020305;
+ font-size:20px;
+}
+
+.powerHUD{
+ position:absolute;z-index:35;
+ right:10px;
+ top:calc(68px + env(safe-area-inset-top));
+ width:155px;
+ display:flex;flex-direction:column;gap:7px;
+ pointer-events:none;
+}
+.powerActive{
+ display:none;padding:7px 9px;
+ border-radius:13px;
+ background:#030914eF;
+ border:1px solid #168dff;
+}
+.powerActive.show{display:block}
+.powerName{font-size:10px;font-weight:1000}
+.powerSeconds{font-size:17px;font-weight:1000}
+.bar{height:4px;background:#07101c;border-radius:10px;overflow:hidden}
+.fill{height:100%;width:100%;background:#168dff;transform-origin:left}
+
+.controls{
+ position:absolute;z-index:40;
+ left:0;right:0;
+ bottom:calc(14px + env(safe-area-inset-bottom));
+ display:flex;justify-content:space-between;
+ padding:0 17px;
+ pointer-events:none;
+}
+.cg{display:flex;gap:10px;pointer-events:auto}
+.ctrl{
+ width:61px;height:61px;border-radius:20px;
+ background:linear-gradient(145deg,#192a40,#050a11);
+ border:1px solid #405a76;
+ box-shadow:0 6px 0 #020305,0 0 18px #008cff22;
+ font-size:25px;
+}
+.ctrl:active{transform:translateY(5px);box-shadow:0 1px #000}
+
+/* PANELS */
+.panel{
+ position:absolute;inset:0;z-index:100;
+ display:none;overflow-y:auto;
+ padding:calc(16px + env(safe-area-inset-top)) 14px
+ calc(25px + env(safe-area-inset-bottom));
+ background:
+ radial-gradient(circle at 10% 0%,#087cff26,transparent 30%),
+ radial-gradient(circle at 100% 60%,#ff17441b,transparent 30%),
+ #03070e;
+}
+.panel.show{display:block}
+.header{
+ display:flex;align-items:center;gap:12px;margin-bottom:14px;
+}
+.back{
+ width:45px;height:45px;border-radius:15px;
+ background:linear-gradient(145deg,#1a2b42,#060a11);
+ border:1px solid #405975;
+ box-shadow:0 5px 0 #020305;
+ font-size:25px;
+}
+.panelTitle{font-size:25px;font-weight:1000}
+.panelTitle span{color:#ff1744}
+
+.section{
+ padding:14px;margin-bottom:13px;
+ border-radius:20px;
+ background:linear-gradient(145deg,#102038eF,#040910F2);
+ border:1px solid #285078;
+ box-shadow:0 10px 25px #0007;
+}
+.section h3{
+ margin:0 0 11px;
+ color:#52b7ff;font-size:12px;letter-spacing:2px;
+}
+
+.wallet{
+ display:flex;justify-content:space-between;
+ padding:13px;border-radius:15px;
+ background:#050b13;border:1px solid #29435e;
+ margin-bottom:11px;
+}
+.wallet strong{color:#ffd83d;font-size:20px}
+
+.shop{
+ display:grid;grid-template-columns:1fr 1fr;gap:10px;
+}
+.item{
+ padding:9px;border-radius:17px;
+ background:linear-gradient(145deg,#14263d,#050a11);
+ border:1px solid #31506d;
+ box-shadow:0 5px 0 #020305;
+ text-align:center;
+}
+.itemPreview{
+ height:100px;border-radius:13px;
+ display:grid;place-items:center;
+ background:radial-gradient(circle,#168dff2b,transparent 65%),#07111d;
+ font-size:48px;
+}
+.itemName{font-size:13px;font-weight:1000;margin-top:7px}
+.price{font-size:12px;color:#ffd83d;margin:6px}
+.item button,.powerCard button{
+ width:100%;padding:10px;border-radius:11px;
+ background:#087fd8;font-weight:1000;
+}
+
+.powerList{display:grid;gap:11px}
+.powerCard{
+ display:flex;align-items:center;gap:11px;
+ padding:12px;border-radius:18px;
+ background:linear-gradient(145deg,#14263d,#050a11);
+ border:1px solid #31506d;
+ box-shadow:0 6px 0 #020305;
+}
+.powerIcon{
+ width:59px;height:59px;flex-shrink:0;
+ border-radius:50%;display:grid;place-items:center;
+ font-size:29px;
+ background:radial-gradient(circle at 30% 20%,#5bc7ff,#0066bc 55%,#031329);
+ border:2px solid #008cff;
+}
+.powerCard.red .powerIcon{
+ background:radial-gradient(circle at 30% 20%,#ff6680,#c60036 55%,#28000c);
+ border-color:#ff1744;
+}
+.powerInfo{flex:1}
+.powerInfo h3{margin:0;font-size:15px}
+.powerInfo p{margin:4px 0;color:#91a5bc;font-size:11px}
+
+.mission{
+ padding:13px;border-radius:16px;
+ background:#07111c;border:1px solid #28445e;
+ margin-bottom:10px;
+}
+.mTop{display:flex;justify-content:space-between;font-weight:900;font-size:13px}
+.mBar{height:6px;margin-top:8px;background:#02050a;border-radius:10px;overflow:hidden}
+.mBar div{height:100%;width:0;background:#008cff}
+
+.setting{
+ display:flex;justify-content:space-between;
+ padding:14px 0;border-bottom:1px solid #182b40;
+}
+.switch{
+ width:51px;height:28px;border-radius:20px;
+ padding:3px;background:#1b2b3d;
+}
+.switch i{
+ display:block;width:22px;height:22px;border-radius:50%;
+ background:#71859b;transition:.2s;
+}
+.switch.on{background:#008cff}
+.switch.on i{transform:translateX(23px);background:white}
+
+/* OVERLAYS */
+.overlay{
+ position:absolute;inset:0;z-index:200;
+ display:none;align-items:center;justify-content:center;
+ padding:20px;background:#0009;
+}
+.overlay.show{display:flex}
+.modal{
+ width:min(400px,92%);
+ padding:24px;border-radius:25px;
+ text-align:center;
+ background:linear-gradient(145deg,#14253b,#050a11);
+ border:1px solid #345878;
+ box-shadow:0 20px 50px #000;
+}
+.modal h1{margin:0 0 7px;font-size:30px}
+.modal p{color:#8fa4bb}
+.modalBtns{display:grid;gap:10px;margin-top:18px}
+
+#toast{
+ position:absolute;z-index:500;
+ left:50%;bottom:100px;
+ transform:translate(-50%,20px);
+ opacity:0;
+ padding:11px 16px;
+ border-radius:14px;
+ background:#0b1828;
+ border:1px solid #008cff;
+ font-weight:900;font-size:12px;
+ transition:.2s;
+ pointer-events:none;
+}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+
+<body>
+<div id="app">
+
+<!-- LOADING -->
+<div id="loading">
+ <div class="loaderLogo">M</div>
+ <div class="loaderBrand">MACRAS</div>
+ <div class="loaderGame">STREET RUSH</div>
+ <div class="loaderTrack"><div class="loaderFill"></div></div>
+ <div class="loaderStatus" id="loadStatus">Starting game...</div>
+</div>
+
+<!-- MENU -->
+<div id="menu">
+ <div class="logoArea">
+  <div class="logo">M</div>
+  <div class="brand">MACRAS</div>
+  <div class="title">STREET <span>RUSH</span></div>
+ </div>
+
+ <div class="characterCard">
+  <canvas id="previewCanvas"></canvas>
+ </div>
+
+ <div class="mainButtons">
+  <button class="btn" id="playBtn">▶ PLAY</button>
+  <button class="btn blue" id="shopBtn">🛒 STREET SHOP</button>
+ </div>
+
+ <div class="grid">
+  <button class="small" id="powerBtn">⚡ POWER-UPS</button>
+  <button class="small" id="characterBtn">👤 CHARACTER</button>
+  <button class="small" id="missionBtn">🎯 MISSIONS</button>
+  <button class="small" id="settingBtn">⚙ SETTINGS</button>
+ </div>
+</div>
+
+<!-- GAME -->
+<div id="game">
+ <canvas id="gameCanvas"></canvas>
+
+ <div class="hud">
+  <div class="hudBox">
+   <div class="hudLabel">SCORE</div>
+   <div class="hudValue" id="score">0</div>
+  </div>
+
+  <button id="pause">Ⅱ</button>
+
+  <div class="hudBox">
+   <div class="hudLabel">COINS</div>
+   <div class="hudValue coin">● <span id="coins">0</span></div>
+  </div>
+ </div>
+
+ <div class="powerHUD">
+  <div class="powerActive" id="speedPower">
+   <div class="powerName">⚡ SPEED BOOST</div>
+   <div class="powerSeconds" id="speedTime">8.0s</div>
+   <div class="bar"><div class="fill" id="speedFill"></div></div>
+  </div>
+
+  <div class="powerActive" id="shieldPower">
+   <div class="powerName">🛡 SHIELD</div>
+   <div class="powerSeconds" id="shieldTime">12.0s</div>
+   <div class="bar"><div class="fill" id="shieldFill"></div></div>
+  </div>
+
+  <div class="powerActive" id="magnetPower">
+   <div class="powerName">🧲 MAGNET</div>
+   <div class="powerSeconds" id="magnetTime">6.0s</div>
+   <div class="bar"><div class="fill" id="magnetFill"></div></div>
+  </div>
+ </div>
+
+ <div class="controls">
+  <div class="cg">
+   <button class="ctrl" id="leftBtn">‹</button>
+   <button class="ctrl" id="rightBtn">›</button>
+  </div>
+  <div class="cg">
+   <button class="ctrl" id="slideBtn">⌄</button>
+   <button class="ctrl" id="jumpBtn">⌃</button>
+  </div>
+ </div>
+</div>
+
+<!-- SHOP -->
+<div class="panel" id="shopPanel">
+ <div class="header">
+  <button class="back" data-close="shopPanel">‹</button>
+  <div class="panelTitle">STREET <span>SHOP</span></div>
+ </div>
+
+ <div class="wallet">
+  <span>YOUR COINS</span>
+  <strong>● <span id="shopCoins">0</span></strong>
+ </div>
+
+ <div class="section">
+  <h3>CLOTHES</h3>
+  <div class="shop">
+
+   <div class="item">
+    <div class="itemPreview">👕</div>
+    <div class="itemName">RED RUNNER</div>
+    <div class="price">● 300</div>
+    <button data-item="red">BUY</button>
+   </div>
+
+   <div class="item">
+    <div class="itemPreview">🧥</div>
+    <div class="itemName">BLUE SHADOW</div>
+    <div class="price">● 500</div>
+    <button data-item="blue">BUY</button>
+   </div>
+
+   <div class="item">
+    <div class="itemPreview">🥋</div>
+    <div class="itemName">STREET PRO</div>
+    <div class="price">● 800</div>
+    <button data-item="pro">BUY</button>
+   </div>
+
+   <div class="item">
+    <div class="itemPreview">🧢</div>
+    <div class="itemName">NIGHT RIDER</div>
+    <div class="price">● 1200</div>
+    <button data-item="night">BUY</button>
+   </div>
+
+  </div>
+ </div>
+</div>
+
+<!-- POWER -->
+<div class="panel" id="powerPanel">
+ <div class="header">
+  <button class="back" data-close="powerPanel">‹</button>
+  <div class="panelTitle">POWER<span>-UPS</span></div>
+ </div>
+
+ <div class="powerList">
+
+  <div class="powerCard red">
+   <div class="powerIcon">⚡</div>
+   <div class="powerInfo">
+    <h3>SPEED BOOST</h3>
+    <p>Speed increases for 8 seconds.</p>
+   </div>
+   <button data-power="speed">EQUIP</button>
+  </div>
+
+  <div class="powerCard">
+   <div class="powerIcon">🛡</div>
+   <div class="powerInfo">
+    <h3>SHIELD</h3>
+    <p>Blocks one obstacle hit for 12 seconds.</p>
+   </div>
+   <button data-power="shield">EQUIP</button>
+  </div>
+
+  <div class="powerCard">
+   <div class="powerIcon">🧲</div>
+   <div class="powerInfo">
+    <h3>MAGNET</h3>
+    <p>Pulls nearby coins for 6 seconds.</p>
+   </div>
+   <button data-power="magnet">EQUIP</button>
+  </div>
+
+ </div>
+</div>
+
+<!-- CHARACTER -->
+<div class="panel" id="characterPanel">
+ <div class="header">
+  <button class="back" data-close="characterPanel">‹</button>
+  <div class="panelTitle">CHARACTER</div>
+ </div>
+
+ <div class="section">
+  <h3>YOUR RUNNER</h3>
+  <div class="characterCard" style="height:350px">
+   <canvas id="characterCanvas"></canvas>
+  </div>
+  <button class="btn blue" style="margin-top:12px" id="equipCurrent">
+   ✓ CURRENT OUTFIT
+  </button>
+ </div>
+</div>
+
+<!-- MISSIONS -->
+<div class="panel" id="missionPanel">
+ <div class="header">
+  <button class="back" data-close="missionPanel">‹</button>
+  <div class="panelTitle">MISSIONS</div>
+ </div>
+
+ <div class="section">
+  <div class="mission">
+   <div class="mTop">
+    <span>Collect 100 Coins</span>
+    <span id="m1text">0/100</span>
+   </div>
+   <div class="mBar"><div id="m1bar"></div></div>
+  </div>
+
+  <div class="mission">
+   <div class="mTop">
+    <span>Run 1000m</span>
+    <span id="m2text">0/1000</span>
+   </div>
+   <div class="mBar"><div id="m2bar"></div></div>
+  </div>
+
+  <div class="mission">
+   <div class="mTop">
+    <span>Score 5000</span>
+    <span id="m3text">0/5000</span>
+   </div>
+   <div class="mBar"><div id="m3bar"></div></div>
+  </div>
+ </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="panel" id="settingPanel">
+ <div class="header">
+  <button class="back" data-close="settingPanel">‹</button>
+  <div class="panelTitle">SETTINGS</div>
+ </div>
+
+ <div class="section">
+  <div class="setting">
+   <span>Sound</span>
+   <div class="switch on" id="soundSwitch"><i></i></div>
+  </div>
+  <div class="setting">
+   <span>Vibration</span>
+   <div class="switch on" id="
